@@ -1,11 +1,6 @@
 import pygame
 import os
 
-all_sprites = pygame.sprite.Group()
-# создадим спрайт
-sprite = pygame.sprite.Sprite()
-plaer_color = 'red'
-
 
 def upd():
     screen.fill(pygame.Color("black"))
@@ -71,7 +66,7 @@ def unit_click(x, y):
         t = t // board.cell_size
         if 0 <= s < board.width and 0 <= t < board.height:
             if board.board[s][t]['units'] != 'None None':
-                return True
+                return board.board[s][t]['units']
 
 
 class Heroes(pygame.sprite.Sprite):
@@ -90,8 +85,8 @@ class Heroes(pygame.sprite.Sprite):
         self.image = load_image(picture)
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
-        self.rect.x = 10
-        self.rect.y = 10
+        self.rect.x = x * board.cell_size + 10
+        self.rect.y = y * board.cell_size + 10
         self.x = x
         self.y = y
 
@@ -106,50 +101,49 @@ class Heroes(pygame.sprite.Sprite):
         t = t // board.cell_size
         w = 10 + board.cell_size * t
 
-        s1 = warrior.rect.x
+        s1 = self.rect.x
         s1 = s1 // board.cell_size
         g1 = 10 + board.cell_size * s1
-        t1 = warrior.rect.y
+        t1 = self.rect.y
         t1 = t1 // board.cell_size
         w1 = 10 + board.cell_size * t1
-
         while g1 != g or w1 != w:
-            g1 = warrior.rect.x
-            w1 = warrior.rect.y
-            if g > warrior.rect.x:
-                warrior.rect.x += 1
-
-            if w > warrior.rect.y:
-                warrior.rect.y += 1
-
-            if g < warrior.rect.x:
-                warrior.rect.x -= 1
-
-            if w < warrior.rect.y:
-                warrior.rect.y -= 1
-
-            upd()
+                g1 = self.rect.x
+                w1 = self.rect.y
+                if g > self.rect.x:
+                    self.rect.x += 1
+                if w > self.rect.y:
+                    self.rect.y += 1
+                if g < self.rect.x:
+                    self.rect.x -= 1
+                if w < self.rect.y:
+                    self.rect.y -= 1
+                upd()
 
         self.flag = False
         self.flag2 = False
-
-        board.board[s][t]['units'] = self
         board.board[s1][t1]['units'] = 'None None'
+        board.board[s][t]['units'] = self
 
 
 if __name__ == '__main__':
     pygame.init()
+    all_sprites = pygame.sprite.Group()
+    # создадим спрайт
+    sprite = pygame.sprite.Sprite()
+    plaer_color = 'red'
     size = width, height = 520, 520
     screen = pygame.display.set_mode(size)
     board = Board(10, 10)
     board.render(screen)
     warrior = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 0, 0, 'red')
+    warrior1 = Heroes('warrior1', 10, 30, 0, 3, 'warrior.png', 2, 1, 'red')
     screen.fill(pygame.Color("black"))
-    all_sprites = pygame.sprite.Group()
     all_sprites.add(warrior)
+    all_sprites.add(warrior1)
     running = True
     f = 0
-    c = 0
+    unit = warrior
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -157,16 +151,19 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                 f = event.pos
                 if (10 < f[0] < 510) and (10 < f[1] < 510):
-                    warrior.flag = True
+                    un = unit_click(f[0], f[1])
+                    if not un and unit:
+                        unit.flag = True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 f = event.pos
-                if unit_click(f[0], f[1]):
-                    warrior.flag2 = True
-                    warrior.flag = False
-                    warrior.old_x = f[0]
-                    warrior.old_y = f[1]
-        if warrior.flag and warrior.flag2:
-            warrior.update(f[0], f[1])
+                unit = unit_click(f[0], f[1])
+                if unit:
+                    unit.flag2 = True
+                    unit.flag = False
+                    unit.old_x = f[0]
+                    unit.old_y = f[1]
+        if unit:
+            if unit.flag and unit.flag2:
+                unit.update(f[0], f[1])
         upd()
-
     pygame.quit()
