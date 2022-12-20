@@ -71,8 +71,7 @@ def unit_click(x, y):
         t = t // board.cell_size
         if 0 <= s < board.width and 0 <= t < board.height:
             if board.board[s][t]['units'] != 'None None':
-                if board.board[s][t]['units'].split()[1] == plaer_color:
-                    return True
+                return True
 
 
 class Heroes(pygame.sprite.Sprite):
@@ -97,7 +96,7 @@ class Heroes(pygame.sprite.Sprite):
         self.y = y
 
         if board.board[x][y]['units'] == 'None None':
-            board.board[x][y]['units'] = name + ' ' + color
+            board.board[x][y]['units'] = self
 
     def update(self, x, y):
         s = x - 10
@@ -119,30 +118,23 @@ class Heroes(pygame.sprite.Sprite):
             w1 = warrior.rect.y
             if g > warrior.rect.x:
                 warrior.rect.x += 1
-                all_sprites = pygame.sprite.Group()
-                all_sprites.add(warrior)
+
             if w > warrior.rect.y:
                 warrior.rect.y += 1
-                all_sprites = pygame.sprite.Group()
-                all_sprites.add(warrior)
+
             if g < warrior.rect.x:
                 warrior.rect.x -= 1
-                all_sprites = pygame.sprite.Group()
-                all_sprites.add(warrior)
+
             if w < warrior.rect.y:
                 warrior.rect.y -= 1
-                all_sprites = pygame.sprite.Group()
-                all_sprites.add(warrior)
+
             upd()
 
         self.flag = False
         self.flag2 = False
-        s = self.old_x - 10
-        s = s // board.cell_size
-        t = self.old_y - 10
-        t = t // board.cell_size
 
-        board.board[s1][t1]['units'] = board.board[s][t]['units']
+        board.board[s][t]['units'] = self
+        board.board[s1][t1]['units'] = 'None None'
 
 
 if __name__ == '__main__':
