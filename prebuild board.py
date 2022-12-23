@@ -31,6 +31,14 @@ class Board:
         self.board = [[Cell(x, y, self) for x in range(width)] for y in range(height)]
         self.width = width
         self.height = height
+        '''self.TERRAINS =
+        self.tiles_images = {'desert' : self.image}
+
+        picture = self.terrain + '_tile.png'
+        self.picture_name = picture
+        self.image_original = load_image(picture)
+        self.image = pygame.transform.scale(self.image_original,
+                                            (self.board.cell_size - 1, self.board.cell_size - 1))'''
 
     '''def render(self, scr):
         for i in range(self.width):
@@ -40,8 +48,14 @@ class Board:
     def get_cell(self, mouse_pos):
         x, y = mouse_pos
         a, b = (x - self.left) // self.cell_size, (y - self.top) // self.cell_size
+        print(a, b)
         return (a, b) if self.left + (self.cell_size * self.width) >= x >= self.top and self.top + (
                 self.cell_size * self.height) >= y >= self.top else None
+
+    def zoom_to_cursor(self, mouse_pos):
+        cursor_x, cursor_y = self.get_cell(mouse_pos)
+        self.left += ((window_width // 2 - cursor_x * (self.cell_size )) - self.left) / 4
+        self.top += ((window_height // 2 - cursor_y * (self.cell_size)) - self.top) / 4
 
 
 class Cell(pygame.sprite.Sprite):
@@ -71,8 +85,10 @@ class Cell(pygame.sprite.Sprite):
                                             (self.board.cell_size - 1, self.board.cell_size - 1))
 
 
-
 cell_group = pygame.sprite.Group()
+cursor_sprite = pygame.sprite.Sprite()
+cursor_sprite.rect = (pygame.Rect(0, 0, 1, 1))
+print(cursor_sprite.rect)
 a = Board(30, 30, 50, 10, 10)
 
 if __name__ == '__main__':
@@ -88,19 +104,21 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    pass
-            if event.type == pygame.MOUSEWHEEL and a.cell_size >= 10:
-                a.cell_size -= event.y
+                    print(a.get_cell(event.pos))
+            if event.type == pygame.MOUSEWHEEL:
+                a.zoom_to_cursor(pygame.mouse.get_pos())
+                a.cell_size += event.y
+
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
-            a.left -= 50 // a.cell_size
+            a.left += 50 // (a.cell_size ** 0.5) + 1
         elif keys[pygame.K_RIGHT]:
-            a.left += 50 // a.cell_size
+            a.left -= 50 // (a.cell_size ** 0.5) + 1
         elif keys[pygame.K_UP]:
-            a.top -= 50 // a.cell_size
+            a.top += 50 // (a.cell_size ** 0.5) + 1
         elif keys[pygame.K_DOWN]:
-            a.top += 50 // a.cell_size
+            a.top -= 50 // (a.cell_size ** 0.5) + 1
 
         screen.fill((0, 0, 0))
         cell_group.update()
