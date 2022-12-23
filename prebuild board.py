@@ -24,10 +24,10 @@ class World:
 
 
 class Board:
-    def __init__(self, width, height, cell_size, *args, **kwargs):
+    def __init__(self, width, height, cell_size, top=10, left=10, *args, **kwargs):
         self.cell_size = cell_size
-        self.left = args[0]
-        self.top = args[1]
+        self.left = left
+        self.top = top
         self.board = [[Cell(x, y, self) for x in range(width)] for y in range(height)]
         self.width = width
         self.height = height
@@ -55,9 +55,9 @@ class Cell(pygame.sprite.Sprite):
 
         self.terrain = terrain
         picture = self.terrain + '_tile.png'
-        self.picture = picture
-        self.image = load_image(picture)
-        self.image = pygame.transform.scale(self.image,
+        self.picture_name = picture
+        self.image_original = load_image(picture)
+        self.image = pygame.transform.scale(self.image_original,
                                             (self.board.cell_size - 1, self.board.cell_size - 1))
 
         self.rect = self.image.get_rect()
@@ -65,12 +65,15 @@ class Cell(pygame.sprite.Sprite):
         self.rect.y = self.y * self.board.cell_size + self.board.top + self.y
 
     def update(self):
-        self.rect.x = self.x * self.board.cell_size + self.board.left
-        self.rect.y = self.y * self.board.cell_size + self.board.top
+        self.rect.x = self.x * self.board.cell_size + self.board.left + self.x
+        self.rect.y = self.y * self.board.cell_size + self.board.top + self.y
+        self.image = pygame.transform.scale(self.image_original,
+                                            (self.board.cell_size - 1, self.board.cell_size - 1))
+
 
 
 cell_group = pygame.sprite.Group()
-a = Board(10, 10, 50, 10, 10)
+a = Board(30, 30, 50, 10, 10)
 
 if __name__ == '__main__':
     pygame.init()
@@ -86,8 +89,20 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     pass
+            if event.type == pygame.MOUSEWHEEL and a.cell_size >= 10:
+                a.cell_size -= event.y
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_LEFT]:
+            a.left -= 50 // a.cell_size
+        elif keys[pygame.K_RIGHT]:
+            a.left += 50 // a.cell_size
+        elif keys[pygame.K_UP]:
+            a.top -= 50 // a.cell_size
+        elif keys[pygame.K_DOWN]:
+            a.top += 50 // a.cell_size
 
         screen.fill((0, 0, 0))
-
+        cell_group.update()
         cell_group.draw(screen)
         pygame.display.flip()
