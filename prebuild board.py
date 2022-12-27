@@ -28,17 +28,18 @@ class Board:
         self.cell_size = cell_size
         self.left = left
         self.top = top
+        self.TERRAINS = ['desert']
+        self.tiles_images = {}
+        self.tiles_images_originals = {}
+        for el in self.TERRAINS:
+            picture = el + '_tile.png'
+            self.tiles_images_originals[el] = load_image(picture)
+            self.tiles_images[el] = pygame.transform.scale(self.tiles_images_originals[el],
+                                                       (self.cell_size - 1, self.cell_size - 1))
         self.board = [[Cell(x, y, self) for x in range(width)] for y in range(height)]
         self.width = width
         self.height = height
-        '''self.TERRAINS =
-        self.tiles_images = {'desert' : self.image}
 
-        picture = self.terrain + '_tile.png'
-        self.picture_name = picture
-        self.image_original = load_image(picture)
-        self.image = pygame.transform.scale(self.image_original,
-                                            (self.board.cell_size - 1, self.board.cell_size - 1))'''
 
     '''def render(self, scr):
         for i in range(self.width):
@@ -48,7 +49,6 @@ class Board:
     def get_cell(self, mouse_pos):
         x, y = mouse_pos
         a, b = (x - self.left) // self.cell_size, (y - self.top) // self.cell_size
-        print(a, b)
         return (a, b) if self.left + (self.cell_size * self.width) >= x >= self.top and self.top + (
                 self.cell_size * self.height) >= y >= self.top else None
 
@@ -59,6 +59,12 @@ class Board:
 
         self.left = window_width // 2 - center_x * (self.cell_size + diff) - x_from_cell
         self.top = window_height // 2 - center_y * (self.cell_size + diff) - y_from_cell
+
+    def update(self):
+        for el in self.TERRAINS:
+            picture = el + '_tile.png'
+            self.tiles_images[el] = pygame.transform.scale(self.tiles_images_originals[el],
+                                                       (self.cell_size - 1, self.cell_size - 1))
 
 
 class Cell(pygame.sprite.Sprite):
@@ -74,8 +80,7 @@ class Cell(pygame.sprite.Sprite):
         picture = self.terrain + '_tile.png'
         self.picture_name = picture
         self.image_original = load_image(picture)
-        self.image = pygame.transform.scale(self.image_original,
-                                            (self.board.cell_size - 1, self.board.cell_size - 1))
+        self.image = self.board.tiles_images[terrain]
 
         self.rect = self.image.get_rect()
         self.rect.x = self.x * self.board.cell_size + self.board.left + self.x
@@ -84,8 +89,7 @@ class Cell(pygame.sprite.Sprite):
     def update(self):
         self.rect.x = self.x * self.board.cell_size + self.board.left + self.x
         self.rect.y = self.y * self.board.cell_size + self.board.top + self.y
-        self.image = pygame.transform.scale(self.image_original,
-                                            (self.board.cell_size - 1, self.board.cell_size - 1))
+        self.image = self.board.tiles_images[self.terrain]
 
 
 cell_group = pygame.sprite.Group()
@@ -111,6 +115,8 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEWHEEL:
                 a.zoom_to_center(event.y)
                 a.cell_size += event.y
+                a.update()
+                cell_group.draw(screen)
 
         keys = pygame.key.get_pressed()
 
@@ -125,5 +131,6 @@ if __name__ == '__main__':
 
         screen.fill((0, 0, 0))
         cell_group.update()
+        a.update()
         cell_group.draw(screen)
         pygame.display.flip()
