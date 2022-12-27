@@ -114,21 +114,8 @@ if __name__ == '__main__':
                     print(a.get_cell(event.pos))
             if event.type == pygame.MOUSEWHEEL:
                 a.zoom_to_center(event.y)
-                a.cell_size += event.y
                 a.update()
                 cell_group.draw(screen)
-
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_LEFT]:
-            a.left += 50 // (a.cell_size ** 0.5) + 1
-        elif keys[pygame.K_RIGHT]:
-            a.left -= 50 // (a.cell_size ** 0.5) + 1
-        elif keys[pygame.K_UP]:
-            a.top += 50 // (a.cell_size ** 0.5) + 1
-        elif keys[pygame.K_DOWN]:
-            a.top -= 50 // (a.cell_size ** 0.5) + 1
-
         screen.fill((0, 0, 0))
         cell_group.update()
         a.update()
