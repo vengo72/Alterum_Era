@@ -52,10 +52,13 @@ class Board:
         return (a, b) if self.left + (self.cell_size * self.width) >= x >= self.top and self.top + (
                 self.cell_size * self.height) >= y >= self.top else None
 
-    def zoom_to_cursor(self, mouse_pos):
-        cursor_x, cursor_y = self.get_cell(mouse_pos)
-        self.left += ((window_width // 2 - cursor_x * (self.cell_size )) - self.left) / 4
-        self.top += ((window_height // 2 - cursor_y * (self.cell_size)) - self.top) / 4
+    def zoom_to_center(self, diff):
+        center_x, center_y = self.get_cell((window_width // 2, window_height // 2))
+        x_from_cell = window_width // 2 - center_x * self.cell_size - self.left
+        y_from_cell = window_height // 2 - center_y * self.cell_size - self.top
+
+        self.left = window_width // 2 - center_x * (self.cell_size + diff) - x_from_cell
+        self.top = window_height // 2 - center_y * (self.cell_size + diff) - y_from_cell
 
 
 class Cell(pygame.sprite.Sprite):
@@ -106,7 +109,7 @@ if __name__ == '__main__':
                 if event.button == 1:
                     print(a.get_cell(event.pos))
             if event.type == pygame.MOUSEWHEEL:
-                a.zoom_to_cursor(pygame.mouse.get_pos())
+                a.zoom_to_center(event.y)
                 a.cell_size += event.y
 
         keys = pygame.key.get_pressed()
