@@ -51,7 +51,14 @@ if __name__ == '__main__':
                 board_global.update()
                 cell_group.draw(screen)
         board_global.scroll()
-
+        for el in all_sprites:
+            el.image = pygame.transform.scale(el.image,
+                                                (el.board.cell_size, el.board.cell_size))
+            el.rect = el.image.get_rect()
+            el.rect.x = el.x * el.board.cell_size + el.board.left
+            el.rect.y = el.y * el.board.cell_size + el.board.top
+            el.rect.x = el.x * el.board.cell_size + el.board.left
+            el.rect.y = el.y * el.board.cell_size + el.board.top
         screen.fill((0, 0, 0))
         cell_group.update()
         board_global.update()

@@ -135,6 +135,9 @@ class Heroes(pygame.sprite.Sprite):
 
         self.image = load_image(picture)
         self.image = pygame.transform.scale(self.image, (self.board.cell_size, self.board.cell_size))
+        self.orig_image = load_image(picture)
+        self.image = pygame.transform.scale(self.orig_image,
+                                                       (self.board.cell_size - 1, self.board.cell_size - 1))
         self.rect = self.image.get_rect()
         self.rect.x = x * self.board.cell_size + self.board.left
         self.rect.y = y * self.board.cell_size + self.board.top
@@ -170,8 +173,12 @@ class Heroes(pygame.sprite.Sprite):
             if w < self.rect.y:
                 self.rect.y -= 1
             upd(self.board, self.groups()[0])
+        self.x = s
+        self.y = t
 
         self.flag = False
         self.flag2 = False
         self.board.board[s1][t1].content['units'] = None
         self.board.board[s][t].content['units'] = self
+
+
