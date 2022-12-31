@@ -1,6 +1,7 @@
 import pygame
 import os
 import config
+from Pil_test import unit_icon
 
 
 def upd(board, sprites):
@@ -130,8 +131,10 @@ class Heroes(pygame.sprite.Sprite):
         self.old_x = 0
         self.old_y = 0
         self.board = board
-
-        self.orig_image = load_image(picture)
+        self.color = color
+        self.picture_name = picture
+        unit_icon(self.picture_name, self.color)
+        self.orig_image = load_image(self.picture_name.split('.')[0] +'_' + color + '.png', color_key='black')
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
         self.rect = self.image.get_rect()

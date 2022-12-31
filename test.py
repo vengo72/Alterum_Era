@@ -7,7 +7,6 @@ from Classes import load_image, Board, Heroes, upd
 if __name__ == '__main__':
     pygame.init()
     all_sprites = pygame.sprite.Group()
-    # создадим спрайт
     sprite = pygame.sprite.Sprite()
     player_color = 'red'
     size = width, height = 520, 520
@@ -16,7 +15,7 @@ if __name__ == '__main__':
     board_global = Board(10, 10, 50, cell_group)
     board_global.render(screen)
     warrior = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 0, 0, 'red', board_global)
-    warrior1 = Heroes('warrior1', 10, 30, 0, 3, 'warrior.png', 2, 1, 'red', board_global)
+    warrior1 = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 2, 1, 'red', board_global)
     screen.fill(pygame.Color("black"))
     all_sprites.add(warrior)
     all_sprites.add(warrior1)
