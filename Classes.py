@@ -47,7 +47,8 @@ class Board:
             self.tiles_images_originals[el] = load_image(picture)
             self.tiles_images[el] = pygame.transform.scale(self.tiles_images_originals[el],
                                                            (self.cell_size - 1, self.cell_size - 1))
-        self.board = [[Cell(x, y, self, cell_group, {'units' : None}) for x in range(width)] for y in range(height)]
+        self.board = [[Cell(x, y, self, cell_group, {'units': None}) for x in range(width)] for y in
+                      range(height)]
         self.width = width
         self.height = height
 
@@ -57,23 +58,20 @@ class Board:
     def get_cell(self, mouse_pos):
         x, y = mouse_pos
         a, b = (x - self.left) // self.cell_size, (y - self.top) // self.cell_size
-        return (a, b) if self.left + (self.cell_size * self.width) >= x >= self.top and self.top + (
+        return int(a), int(b) if self.left + (self.cell_size * self.width) >= x >= self.top and self.top + (
                 self.cell_size * self.height) >= y >= self.top else None
 
     def zoom_to_center(self, diff):
-
         window_width, window_height = config.window_width, config.window_height
         center_x, center_y = self.get_cell((window_width // 2, window_height // 2))
         x_from_cell = window_width // 2 - center_x * self.cell_size - self.left
         y_from_cell = window_height // 2 - center_y * self.cell_size - self.top
-
         self.left = window_width // 2 - center_x * (self.cell_size + diff) - x_from_cell
         self.top = window_height // 2 - center_y * (self.cell_size + diff) - y_from_cell
-
         self.cell_size += diff
 
     def get_cell_object(self, x, y):
-        return self.board[x][y]
+        return self.board[int(x)][int(y)]
 
     def update(self):
         for el in self.TERRAINS:
@@ -110,12 +108,12 @@ class Cell(pygame.sprite.Sprite):
         self.image = self.board.tiles_images[terrain]
 
         self.rect = self.image.get_rect()
-        self.rect.x = self.x * self.board.cell_size + self.board.left + self.x
-        self.rect.y = self.y * self.board.cell_size + self.board.top + self.y
+        self.rect.x = self.x * self.board.cell_size + self.board.left
+        self.rect.y = self.y * self.board.cell_size + self.board.top
 
     def update(self):
-        self.rect.x = self.x * self.board.cell_size + self.board.left + self.x
-        self.rect.y = self.y * self.board.cell_size + self.board.top + self.y
+        self.rect.x = self.x * self.board.cell_size + self.board.left
+        self.rect.y = self.y * self.board.cell_size + self.board.top
         self.image = self.board.tiles_images[self.terrain]
 
 
@@ -133,11 +131,9 @@ class Heroes(pygame.sprite.Sprite):
         self.old_y = 0
         self.board = board
 
-        self.image = load_image(picture)
-        self.image = pygame.transform.scale(self.image, (self.board.cell_size, self.board.cell_size))
         self.orig_image = load_image(picture)
-        self.image = pygame.transform.scale(self.orig_image,
-                                                       (self.board.cell_size - 1, self.board.cell_size - 1))
+        self.image = pygame.transform.scale(self.orig_image.copy(),
+                                            (self.board.cell_size, self.board.cell_size))
         self.rect = self.image.get_rect()
         self.rect.x = x * self.board.cell_size + self.board.left
         self.rect.y = y * self.board.cell_size + self.board.top
@@ -147,38 +143,56 @@ class Heroes(pygame.sprite.Sprite):
         if self.board.board[x][y].content['units'] is None:
             self.board.board[x][y].content['units'] = self
 
-    def update(self, x, y):
-        s = x - self.board.left
-        s = s // self.board.cell_size
-        g = self.board.left + self.board.cell_size * s
-        t = y - self.board.top
-        t = t // self.board.cell_size
-        w = self.board.top + self.board.cell_size * t
+    class Heroes(pygame.sprite.Sprite):
+        def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, *group):
+            super().__init__(*group)
+            self.name = name
+            self.damage = damage
+            self.health = health
+            self.power = power
+            self.speed = speed
+            self.flag = False
+            self.flag2 = False
+            self.old_x = 0
+            self.old_y = 0
+            self.board = board
 
-        s1 = self.rect.x
-        s1 = s1 // self.board.cell_size
-        g1 = self.board.left + self.board.cell_size * s1
-        t1 = self.rect.y
-        t1 = t1 // self.board.cell_size
-        w1 = self.board.top + self.board.cell_size * t1
-        while g1 != g or w1 != w:
-            g1 = self.rect.x
-            w1 = self.rect.y
-            if g > self.rect.x:
-                self.rect.x += 1
-            if w > self.rect.y:
-                self.rect.y += 1
-            if g < self.rect.x:
+            self.orig_image = load_image(picture)
+            self.image = pygame.transform.scale(self.orig_image.copy(),
+                                                (self.board.cell_size, self.board.cell_size))
+            self.rect = self.image.get_rect()
+            self.rect.x = x * self.board.cell_size + self.board.left
+            self.rect.y = y * self.board.cell_size + self.board.top
+            self.x = x
+            self.y = y
+
+            if self.board.board[int(x)][int(y)].content['units'] is None:
+                self.board.board[int(x)][int(y)].content['units'] = self
+
+    def unit_move(self, x, y):
+        target_pixel_x, target_pixel_y = x, y
+        target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
+        self.board.board[self.x][self.y].content['units'] = None
+        self.board.board[target_cell[0]][target_cell[1]].content['units'] = self
+
+        self.x = target_cell[0]
+        self.y = target_cell[1]
+
+    def update(self):
+        self.image = pygame.transform.scale(self.orig_image.copy(),
+                                            (self.board.cell_size, self.board.cell_size))
+
+        while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
+                self.rect.y != self.y * self.board.cell_size + self.board.top):
+            if self.rect.x > self.x * self.board.cell_size + self.board.left:
                 self.rect.x -= 1
-            if w < self.rect.y:
+            if self.rect.x < self.x * self.board.cell_size + self.board.left:
+                self.rect.x += 1
+            if self.rect.y > self.y * self.board.cell_size + self.board.top:
                 self.rect.y -= 1
+            if self.rect.y < self.y * self.board.cell_size + self.board.top:
+                self.rect.y += 1
             upd(self.board, self.groups()[0])
-        self.x = s
-        self.y = t
 
-        self.flag = False
-        self.flag2 = False
-        self.board.board[s1][t1].content['units'] = None
-        self.board.board[s][t].content['units'] = self
-
-
+        self.rect.x = self.x * self.board.cell_size + self.board.left
+        self.rect.y = self.y * self.board.cell_size + self.board.top

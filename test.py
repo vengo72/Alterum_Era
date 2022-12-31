@@ -32,37 +32,21 @@ if __name__ == '__main__':
                 if not board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
                         'units'):
                     if unit:
-                        unit.flag = True
-                    f = event.pos
+                        unit.unit_move(*event.pos)
+                        all_sprites.update()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                f = event.pos
                 unit = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
                     'units', None)
-                if unit:
-                    unit.flag2 = True
-                    unit.flag = False
-                    unit.old_x = f[0]
-                    unit.old_y = f[1]
-            if unit:
-                if unit.flag and unit.flag2:
-                    unit.update(f[0], f[1])
             if event.type == pygame.MOUSEWHEEL:
                 board_global.zoom_to_center(event.y)
                 board_global.update()
-                cell_group.draw(screen)
+                all_sprites.update()
         board_global.scroll()
-        for el in all_sprites:
-            el.image = pygame.transform.scale(el.image,
-                                                (el.board.cell_size, el.board.cell_size))
-            el.rect = el.image.get_rect()
-            el.rect.x = el.x * el.board.cell_size + el.board.left
-            el.rect.y = el.y * el.board.cell_size + el.board.top
-            el.rect.x = el.x * el.board.cell_size + el.board.left
-            el.rect.y = el.y * el.board.cell_size + el.board.top
         screen.fill((0, 0, 0))
         cell_group.update()
         board_global.update()
         cell_group.draw(screen)
+        all_sprites.update()
         upd(board_global, all_sprites)
         pygame.display.flip()
     pygame.quit()
