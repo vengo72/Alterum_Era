@@ -1,12 +1,14 @@
 import pygame
 import os
 import config
+import map_types
 from Pil_test import unit_icon
 
 
 def upd(board, sprites):
     screen = config.screen
     screen.fill(pygame.Color("black"))
+
     board.render(screen)
     sprites.draw(screen)
     pygame.display.flip()
@@ -30,8 +32,19 @@ def load_image(name, color_key=None):
 
 
 class World:
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, width, height, *args, map_type='pangea', **kwargs):
+        self.map_type = map_type
+        self.chunks = [['plain' for _ in range((width + 9) // 10)] for _ in
+                       range((height + 9) // 10)]
+        self.chunks = map_types.PANGEA
+        board = Board(width, height, 10, config.cell_group)
+        for i in range(len(self.chunks)):
+            for j in range(len(self.chunks[i])):
+                for y in range(10):
+                    for x in range(10):
+                        cell_x = x + j * 10
+                        cell_y = y + i * 10
+                        board.board[cell_y][cell_x].terrain = self.chunks[i][j]
 
 
 class Board:
@@ -40,7 +53,7 @@ class Board:
         self.cell_group = cell_group
         self.left = left
         self.top = top
-        self.TERRAINS = ['desert']
+        self.TERRAINS = ['desert', 'plain']
         self.tiles_images = {}
         self.tiles_images_originals = {}
         for el in self.TERRAINS:
@@ -59,8 +72,9 @@ class Board:
     def get_cell(self, mouse_pos):
         x, y = mouse_pos
         a, b = (x - self.left) // self.cell_size, (y - self.top) // self.cell_size
-        return int(a), int(b) if self.left + (self.cell_size * self.width) >= x >= self.top and self.top + (
-                self.cell_size * self.height) >= y >= self.top else None
+        return int(a), int(b) if self.left + (
+                self.cell_size * self.width) >= x >= self.top and self.top + (
+                                         self.cell_size * self.height) >= y >= self.top else None
 
     def zoom_to_center(self, diff):
         window_width, window_height = config.window_width, config.window_height
@@ -83,13 +97,14 @@ class Board:
     def scroll(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            self.left += 50 // (self.cell_size ** 0.5) + 1
+            self.left += 3
         elif keys[pygame.K_RIGHT]:
-            self.left -= 50 // (self.cell_size ** 0.5) + 1
+            self.left -= 3
         elif keys[pygame.K_UP]:
-            self.top += 50 // (self.cell_size ** 0.5) + 1
+            self.top += 3
         elif keys[pygame.K_DOWN]:
-            self.top -= 50 // (self.cell_size ** 0.5) + 1
+            self.top -= 3
+        config.all_sprites.update()
 
 
 class Cell(pygame.sprite.Sprite):
@@ -101,7 +116,6 @@ class Cell(pygame.sprite.Sprite):
         self.y = y
         self.board = board
         self.content = content
-
         self.terrain = terrain
         picture = self.terrain + '_tile.png'
         self.picture_name = picture
@@ -126,15 +140,12 @@ class Heroes(pygame.sprite.Sprite):
         self.health = health
         self.power = power
         self.speed = speed
-        self.flag = False
-        self.flag2 = False
-        self.old_x = 0
-        self.old_y = 0
         self.board = board
         self.color = color
         self.picture_name = picture
         unit_icon(self.picture_name, self.color)
-        self.orig_image = load_image(self.picture_name.split('.')[0] +'_' + color + '.png', color_key='black')
+        self.orig_image = load_image(self.picture_name.split('.')[0] + '_' + color + '.png',
+                                     color_key='black')
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
         self.rect = self.image.get_rect()
@@ -146,28 +157,6 @@ class Heroes(pygame.sprite.Sprite):
         if self.board.board[x][y].content['units'] is None:
             self.board.board[x][y].content['units'] = self
 
-    class Heroes(pygame.sprite.Sprite):
-        def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, *group):
-            super().__init__(*group)
-            self.name = name
-            self.damage = damage
-            self.health = health
-            self.power = power
-            self.speed = speed
-            self.board = board
-
-            self.orig_image = load_image(picture)
-            self.image = pygame.transform.scale(self.orig_image.copy(),
-                                                (self.board.cell_size, self.board.cell_size))
-            self.rect = self.image.get_rect()
-            self.rect.x = x * self.board.cell_size + self.board.left
-            self.rect.y = y * self.board.cell_size + self.board.top
-            self.x = x
-            self.y = y
-
-            if self.board.board[int(x)][int(y)].content['units'] is None:
-                self.board.board[int(x)][int(y)].content['units'] = self
-
     def unit_move(self, x, y):
         target_pixel_x, target_pixel_y = x, y
         target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
@@ -176,11 +165,6 @@ class Heroes(pygame.sprite.Sprite):
 
         self.x = target_cell[0]
         self.y = target_cell[1]
-
-    def update(self):
-        self.image = pygame.transform.scale(self.orig_image.copy(),
-                                            (self.board.cell_size, self.board.cell_size))
-
         while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
                 self.rect.y != self.y * self.board.cell_size + self.board.top):
             if self.rect.x > self.x * self.board.cell_size + self.board.left:
@@ -189,9 +173,12 @@ class Heroes(pygame.sprite.Sprite):
                 self.rect.x += 1
             if self.rect.y > self.y * self.board.cell_size + self.board.top:
                 self.rect.y -= 1
-            if self.rect.y < self.y * self.board.cell_size + self.board.top:
+            elif self.rect.y < self.y * self.board.cell_size + self.board.top:
                 self.rect.y += 1
             upd(self.board, self.groups()[0])
 
+    def update(self):
+        self.image = pygame.transform.scale(self.orig_image.copy(),
+                                            (self.board.cell_size, self.board.cell_size))
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
