@@ -154,10 +154,6 @@ class Heroes(pygame.sprite.Sprite):
             self.health = health
             self.power = power
             self.speed = speed
-            self.flag = False
-            self.flag2 = False
-            self.old_x = 0
-            self.old_y = 0
             self.board = board
 
             self.orig_image = load_image(picture)
