@@ -53,7 +53,7 @@ class Board:
         self.cell_group = cell_group
         self.left = left
         self.top = top
-        self.TERRAINS = ['desert', 'plain']
+        self.TERRAINS = ['desert', 'plain', 'ocean']
         self.tiles_images = {}
         self.tiles_images_originals = {}
         for el in self.TERRAINS:
@@ -125,6 +125,12 @@ class Cell(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
+
+    def adjacent(self):
+        return [self.board.board[self.y - 1][self.x],
+                self.board.board[self.y][self.x + 1],
+                self.board.board[self.y + 1][self.x],
+                self.board.board[self.y][self.x - 1]]
 
     def update(self):
         self.rect.x = self.x * self.board.cell_size + self.board.left
