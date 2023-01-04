@@ -45,6 +45,10 @@ class World:
                         cell_x = x + j * 10
                         cell_y = y + i * 10
                         board.board[cell_y][cell_x].terrain = self.chunks[i][j]
+        for i in range(len(self.chunks)):
+            for j in range(len(self.chunks[i])):
+                for func in map_types.CHUNKS[self.chunks[i][j]]:
+                    func(board, i, j)
 
 
 class Board:

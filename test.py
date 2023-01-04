@@ -5,7 +5,7 @@ import config
 from Classes import load_image, Board, Heroes, upd, World
 
 if __name__ == '__main__':
-    alpha = World(100, 100)
+    alpha = World(20, 20)
 
     cell_group = config.cell_group
     all_sprites = config.all_sprites
