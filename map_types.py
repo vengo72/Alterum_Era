@@ -17,13 +17,14 @@ def generate_islands(board, i, j, chance=0.5):
         size_chances = [0, 2, 4, 6, 7, 7, 7, 8, 8, 8, 9, 10, 11, 12]
         island_size = random.choice(size_chances)
         board.board[cell_y][cell_x].terrain = random.choice(terrains)
+        island_terrain = random.choice(terrains)
         for tile in range(island_size):
             random.choice(board.board[cell_y][cell_x].adjacent()).terrain = board.board[cell_y][
-                cell_x].terrain = random.choice(terrains)
+                cell_x].terrain = island_terrain
             if island_size >= 6:
                 random.choice(
                     random.choice(board.board[cell_y][cell_x].adjacent()).adjacent()).terrain = \
-                    board.board[cell_y][cell_x].terrain = random.choice(terrains)
+                    board.board[cell_y][cell_x].terrain = island_terrain
 
 
 CHUNKS = {'ocean': [generate_islands],
