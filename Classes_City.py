@@ -28,6 +28,29 @@ def load_image(name, color_key=None):
     return image
 
 
+def units(cit, old_sprites, unit, select_unit, warrior, board_global, all_sprites, player, event):
+    if cit:
+        all_sprites = old_sprites.copy()
+        cit = False
+    if not unit and select_unit:
+        select_unit.create_unit(warrior, select_unit.x, select_unit.y, board_global,
+                                all_sprites, player, event)
+        select_unit = False
+        old_sprites = all_sprites.copy()
+    elif type(unit) == City:
+        all_sprites = old_sprites.copy()
+        old_sprites = all_sprites.copy()
+        for i in range(board_global.get_cell(event.pos)[0] - 1,
+                       board_global.get_cell(event.pos)[0] + 2):
+            for j in range(board_global.get_cell(event.pos)[1] - 1,
+                           board_global.get_cell(event.pos)[1] + 2):
+                if not board_global.get_cell_object(i, j).content.get('units', None):
+                    if i != board_global.get_cell(event.pos)[0] or j != board_global.get_cell(event.pos)[1]:
+                        all_sprites.add(Picture('mish.png', board_global, i, j))
+    else:
+        all_sprites = old_sprites.copy()
+
+
 class World:
     def __init__(self, *args, **kwargs):
         pass
@@ -148,11 +171,12 @@ class Heroes(pygame.sprite.Sprite):
     def unit_move(self, x, y):
         target_pixel_x, target_pixel_y = x, y
         target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
-        self.board.board[self.x][self.y].content['units'] = None
-        self.board.board[target_cell[0]][target_cell[1]].content['units'] = self
+        if (((target_cell[0] - self.x)**2)**0.5 + ((target_cell[1] - self.y)**2)**0.5) <= 2:
+            self.board.board[self.x][self.y].content['units'] = None
+            self.board.board[target_cell[0]][target_cell[1]].content['units'] = self
 
-        self.x = target_cell[0]
-        self.y = target_cell[1]
+            self.x = target_cell[0]
+            self.y = target_cell[1]
 
     def update(self):
         self.image = pygame.transform.scale(self.orig_image.copy(),
@@ -196,7 +220,21 @@ class City(pygame.sprite.Sprite):
         if self.board.board[int(x)][int(y)].content['units'] is None:
             self.board.board[int(x)][int(y)].content['units'] = self
 
-    def create_unit(self, hero, x, y, board, all_sprite, player):
+    def create_unit(self, hero, x, y, board, all_sprite, player, event):
+        global all_sprites
+
+        if player.gold > hero.gold and type(board.get_cell_object(x, y).content.get(
+                    'units', None)) == City:
+            a = event.pos
+            b = board.get_cell(a)
+            if (-1 <= x - b[0] <= 1) and (-1 <= y - b[1] <= 1) and (b[0] != 0 and b[1] != 0):
+                all_sprite.add(Heroes('warrior', 10, 30, 10, 2, 'warrior.png', b[0], b[1], 'red', board, 10))
+                all_sprites = all_sprite
+                player.gold -= hero.gold
+        else:
+            print('Денег нет')
+
+    def create_picture(self, hero, x, y, board, all_sprite, player):
         global all_sprites
         if player.gold > hero.gold and type(board.get_cell_object(x, y).content.get(
                     'units', None)) == City:
@@ -208,7 +246,6 @@ class City(pygame.sprite.Sprite):
                         all_sprites = all_sprite
                         g = True
                         player.gold -= hero.gold
-                        print(player.gold)
                         break
                 if g:
                     break
@@ -216,6 +253,25 @@ class City(pygame.sprite.Sprite):
                 print('Ошибка')
         else:
             print('денег нет')
+
+    def update(self):
+        self.image = pygame.transform.scale(self.orig_image.copy(),
+                                            (self.board.cell_size, self.board.cell_size))
+
+        while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
+                self.rect.y != self.y * self.board.cell_size + self.board.top):
+            if self.rect.x > self.x * self.board.cell_size + self.board.left:
+                self.rect.x -= 1
+            if self.rect.x < self.x * self.board.cell_size + self.board.left:
+                self.rect.x += 1
+            if self.rect.y > self.y * self.board.cell_size + self.board.top:
+                self.rect.y -= 1
+            if self.rect.y < self.y * self.board.cell_size + self.board.top:
+                self.rect.y += 1
+            upd(self.board, self.groups()[0])
+
+        self.rect.x = self.x * self.board.cell_size + self.board.left
+        self.rect.y = self.y * self.board.cell_size + self.board.top
 
 
 class Player:
@@ -226,3 +282,37 @@ class Player:
         self.name = name
         self.cities = dict()
         self.cities['firstTown'] = City(5, 5, 'city.png', board, 'red')
+
+
+class Picture(pygame.sprite.Sprite):
+    def __init__(self, name, board, x, y, *group):
+        super().__init__(*group)
+        self.board = board
+        self.name = name
+        self.orig_image = load_image(name)
+        self.image = pygame.transform.scale(self.orig_image.copy(),
+                                            (self.board.cell_size, self.board.cell_size))
+        self.rect = self.image.get_rect()
+        self.rect.x = x * self.board.cell_size + self.board.left
+        self.rect.y = y * self.board.cell_size + self.board.top
+        self.x = x
+        self.y = y
+
+    def update(self):
+        self.image = pygame.transform.scale(self.orig_image.copy(),
+                                            (self.board.cell_size, self.board.cell_size))
+
+        while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
+                self.rect.y != self.y * self.board.cell_size + self.board.top):
+            if self.rect.x > self.x * self.board.cell_size + self.board.left:
+                self.rect.x -= 1
+            if self.rect.x < self.x * self.board.cell_size + self.board.left:
+                self.rect.x += 1
+            if self.rect.y > self.y * self.board.cell_size + self.board.top:
+                self.rect.y -= 1
+            if self.rect.y < self.y * self.board.cell_size + self.board.top:
+                self.rect.y += 1
+            upd(self.board, self.groups()[0])
+
+        self.rect.x = self.x * self.board.cell_size + self.board.left
+        self.rect.y = self.y * self.board.cell_size + self.board.top
