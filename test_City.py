@@ -2,7 +2,7 @@ import pygame
 import os
 import config
 
-from Classes import load_image, Board, Heroes, upd, City, Player
+from Classes_City import load_image, Board, Heroes, upd, City, Player, Picture
 
 if __name__ == '__main__':
     pygame.init()
@@ -19,10 +19,11 @@ if __name__ == '__main__':
     player = Player('red', 'Vova', board_global)
     warrior = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 0, 0, 'red', board_global, 10)
     all_sprites.add(player.cities['firstTown'])
+    old_sprites = all_sprites
+    select_unit = False
     gl_screen = screen
     running = True
     cit = False
-    f = 0
     unit = None
     while running:
         for event in pygame.event.get():
@@ -37,17 +38,35 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 unit = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
                     'units', None)
-                if type(unit) == City:
-                    cit = True
+                if cit:
+                    all_sprites = old_sprites.copy()
+                    cit = False
+                if not unit and select_unit:
+                    select_unit.create_unit(warrior, select_unit.x, select_unit.y, board_global,
+                                            all_sprites, player, event)
+                    select_unit = False
+                    old_sprites = all_sprites.copy()
+                elif type(unit) == City:
+                    all_sprites = old_sprites.copy()
+                    old_sprites = all_sprites.copy()
+                    for i in range(board_global.get_cell(event.pos)[0] - 1,
+                                   board_global.get_cell(event.pos)[0] + 2):
+                        for j in range(board_global.get_cell(event.pos)[1] - 1,
+                                       board_global.get_cell(event.pos)[1] + 2):
+                            if not board_global.get_cell_object(i, j).content.get('units', None):
+                                if i != board_global.get_cell(event.pos)[0] or j != board_global.get_cell(event.pos)[1]:
+                                    all_sprites.add(Picture('mish.png', board_global, i, j))
+                else:
+                    all_sprites = old_sprites.copy()
             if event.type == pygame.MOUSEWHEEL:
                 board_global.zoom_to_center(event.y)
                 board_global.update()
                 all_sprites.update()
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     if type(unit) == City:
-                        unit.create_unit(warrior, unit.x, unit.y, board_global, all_sprites, player)
+                        cit = True
+                        select_unit = unit
         board_global.scroll()
         screen.fill((0, 0, 0))
         cell_group.update()
