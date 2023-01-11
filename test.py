@@ -14,17 +14,16 @@ if __name__ == '__main__':
     player_color = 'red'
     size = width, height = 520, 520
     screen = config.screen
-    board_global = Board(10, 10, 50, cell_group)
+    board_global = alpha.board
     board_global.render(screen)
-    warrior = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 0, 0, 'red', board_global)
-    warrior1 = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 2, 1, 'red', board_global)
+    # warrior = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 0, 0, 'red', board_global, 10)
+    # warrior1 = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 2, 1, 'red', board_global, 10)
     screen.fill(pygame.Color("black"))
-    all_sprites.add(warrior)
-    all_sprites.add(warrior1)
+
     gl_screen = screen
     running = True
     f = 0
-    unit = warrior
+    unit = None
     while running:
         screen.fill((0, 0, 0))
         for event in pygame.event.get():

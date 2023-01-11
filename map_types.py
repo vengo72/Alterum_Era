@@ -4,7 +4,7 @@ import random
 
 def generate_islands(board, i, j, chance=0.5):
     terrains = board.TERRAINS.copy()
-    terrains.remove('ocean')
+    # terrains.remove('ocean')
     if random.random() > chance:
         num_isl = random.randint(1, 3)
     else:

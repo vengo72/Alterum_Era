@@ -1,10 +1,14 @@
+import random
+
 import pygame
 import os
 import config
 
-from Classes_City import load_image, Board, Heroes, upd, City, Player, Picture
+from Classes_City import City, Player, Picture
+from Classes import load_image, Board, Heroes, upd, World
 
 if __name__ == '__main__':
+    alpha = World(20, 20)
     pygame.init()
     all_sprites = pygame.sprite.Group()
     # создадим спрайт
@@ -13,11 +17,11 @@ if __name__ == '__main__':
     size = width, height = 520, 520
     screen = config.screen
     cell_group = pygame.sprite.Group()
-    board_global = Board(10, 10, 50, cell_group)
+    board_global = alpha.board
     board_global.render(screen)
     screen.fill(pygame.Color("black"))
-    player = Player('red', 'Vova', board_global)
-    warrior = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 0, 0, 'red', board_global, 10)
+    player = Player('green', 'Vova', board_global)
+    # warrior = Heroes('warrior', 10, 30, 0, 3, 'warrior.png', 0, 0, 'red', board_global, 10)
     all_sprites.add(player.cities['firstTown'])
     old_sprites = all_sprites
     select_unit = False
@@ -25,6 +29,24 @@ if __name__ == '__main__':
     running = True
     cit = False
     unit = None
+
+    cell_group = config.cell_group
+    all_sprites = config.all_sprites
+    pygame.init()
+    sprite = pygame.sprite.Sprite()
+    player_color = 'green'
+    size = width, height = 520, 520
+    screen = config.screen
+    board_global = alpha.board
+    board_global.render(screen)
+    able_tiles = []
+    # for y in range(board_global.height):
+    #     for x in range(board_global.weight):
+    #         able_tiles.append((x, y))
+    # x, y = random.choice(able_tiles)
+    player = Player('red', 'Vova', board_global)
+    all_sprites.add(player.cities['firstTown'])
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -42,7 +64,7 @@ if __name__ == '__main__':
                     all_sprites = old_sprites.copy()
                     cit = False
                 if not unit and select_unit:
-                    select_unit.create_unit(warrior, select_unit.x, select_unit.y, board_global,
+                    select_unit.create_unit('warrior', select_unit.x, select_unit.y, board_global,
                                             all_sprites, player, event)
                     select_unit = False
                     old_sprites = all_sprites.copy()

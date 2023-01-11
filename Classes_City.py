@@ -1,10 +1,14 @@
 import pygame
 import os
 import config
+from Pil_test import unit_icon
+import map_types
 
 
 def upd(board, sprites):
     screen = config.screen
+    board.render(screen)
+
     screen.fill(pygame.Color("black"))
     board.render(screen)
     sprites.draw(screen)
@@ -28,32 +32,24 @@ def load_image(name, color_key=None):
     return image
 
 
-def units(cit, old_sprites, unit, select_unit, warrior, board_global, all_sprites, player, event):
-    if cit:
-        all_sprites = old_sprites.copy()
-        cit = False
-    if not unit and select_unit:
-        select_unit.create_unit(warrior, select_unit.x, select_unit.y, board_global,
-                                all_sprites, player, event)
-        select_unit = False
-        old_sprites = all_sprites.copy()
-    elif type(unit) == City:
-        all_sprites = old_sprites.copy()
-        old_sprites = all_sprites.copy()
-        for i in range(board_global.get_cell(event.pos)[0] - 1,
-                       board_global.get_cell(event.pos)[0] + 2):
-            for j in range(board_global.get_cell(event.pos)[1] - 1,
-                           board_global.get_cell(event.pos)[1] + 2):
-                if not board_global.get_cell_object(i, j).content.get('units', None):
-                    if i != board_global.get_cell(event.pos)[0] or j != board_global.get_cell(event.pos)[1]:
-                        all_sprites.add(Picture('mish.png', board_global, i, j))
-    else:
-        all_sprites = old_sprites.copy()
-
-
 class World:
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, width, height, *args, map_type='pangea', **kwargs):
+        self.map_type = map_type
+        self.chunks = [['plain' for _ in range((width + 9) // 10)] for _ in
+                       range((height + 9) // 10)]
+        self.chunks = map_types.PANGEA
+        self.board = Board(width, height, 10, config.cell_group)
+        for i in range(len(self.chunks)):
+            for j in range(len(self.chunks[i])):
+                for y in range(10):
+                    for x in range(10):
+                        cell_x = x + j * 10
+                        cell_y = y + i * 10
+                        self.board.board[cell_y][cell_x].terrain = self.chunks[i][j]
+        for i in range(len(self.chunks)):
+            for j in range(len(self.chunks[i])):
+                for func in map_types.CHUNKS[self.chunks[i][j]]:
+                    func(self.board, i, j)
 
 
 class Board:
@@ -106,13 +102,14 @@ class Board:
     def scroll(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            self.left += 50 // (self.cell_size ** 0.5) + 1
+            self.left += 3
         elif keys[pygame.K_RIGHT]:
-            self.left -= 50 // (self.cell_size ** 0.5) + 1
+            self.left -= 3
         elif keys[pygame.K_UP]:
-            self.top += 50 // (self.cell_size ** 0.5) + 1
+            self.top += 3
         elif keys[pygame.K_DOWN]:
-            self.top -= 50 // (self.cell_size ** 0.5) + 1
+            self.top -= 3
+        config.all_sprites.update()
 
 
 class Cell(pygame.sprite.Sprite):
@@ -150,15 +147,13 @@ class Heroes(pygame.sprite.Sprite):
         self.health = health
         self.power = power
         self.speed = speed
-        self.flag = False
-        self.flag2 = False
-        self.old_x = 0
-        self.old_y = 0
         self.board = board
-        self.gold = gold
         self.color = color
-
-        self.orig_image = load_image(picture)
+        self.picture_name = picture
+        self.gold = gold
+        unit_icon(self.picture_name, self.color)
+        self.orig_image = load_image(self.picture_name.split('.')[0] + '_' + color + '.png',
+                                     color_key='black')
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
         self.rect = self.image.get_rect()
@@ -173,29 +168,27 @@ class Heroes(pygame.sprite.Sprite):
     def unit_move(self, x, y):
         target_pixel_x, target_pixel_y = x, y
         target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
-        if (((target_cell[0] - self.x)**2)**0.5 + ((target_cell[1] - self.y)**2)**0.5) <= 2:
+        if (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5) <= 2:
             self.board.board[self.x][self.y].content['units'] = None
             self.board.board[target_cell[0]][target_cell[1]].content['units'] = self
 
             self.x = target_cell[0]
             self.y = target_cell[1]
+            while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
+                    self.rect.y != self.y * self.board.cell_size + self.board.top):
+                if self.rect.x > self.x * self.board.cell_size + self.board.left:
+                    self.rect.x -= 1
+                if self.rect.x < self.x * self.board.cell_size + self.board.left:
+                    self.rect.x += 1
+                if self.rect.y > self.y * self.board.cell_size + self.board.top:
+                    self.rect.y -= 1
+                elif self.rect.y < self.y * self.board.cell_size + self.board.top:
+                    self.rect.y += 1
+                upd(self.board, self.groups()[0])
 
     def update(self):
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
-
-        while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
-                self.rect.y != self.y * self.board.cell_size + self.board.top):
-            if self.rect.x > self.x * self.board.cell_size + self.board.left:
-                self.rect.x -= 1
-            if self.rect.x < self.x * self.board.cell_size + self.board.left:
-                self.rect.x += 1
-            if self.rect.y > self.y * self.board.cell_size + self.board.top:
-                self.rect.y -= 1
-            if self.rect.y < self.y * self.board.cell_size + self.board.top:
-                self.rect.y += 1
-            upd(self.board, self.groups()[0])
-
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
 
@@ -214,10 +207,10 @@ class City(pygame.sprite.Sprite):
         self.rect.y = y * self.board.cell_size + self.board.top
         self.x = x
         self.y = y
-        self.units = dict()
-        self.units['Воин'] = True
+        self.able_units = dict()
+        self.able_units['Воин'] = True
         self.buildings = dict()
-        self.buildings['стены'] = False
+        self.buildings['Стены'] = False
 
         if self.board.board[int(x)][int(y)].content['units'] is None:
             self.board.board[int(x)][int(y)].content['units'] = self
@@ -225,14 +218,15 @@ class City(pygame.sprite.Sprite):
     def create_unit(self, hero, x, y, board, all_sprite, player, event):
         global all_sprites
 
-        if player.gold > hero.gold and type(board.get_cell_object(x, y).content.get(
-                    'units', None)) == City:
+        if player.gold > config.PATTERN[hero][0] and type(board.get_cell_object(x, y).content.get(
+                'units', None)) == City:
             a = event.pos
             b = board.get_cell(a)
             if (-1 <= x - b[0] <= 1) and (-1 <= y - b[1] <= 1) and (b[0] != 0 and b[1] != 0):
-                all_sprite.add(Heroes('warrior', 10, 30, 10, 2, 'warrior.png', b[0], b[1], 'red', board, 10))
+                all_sprite.add(
+                    Heroes('warrior', 10, 30, 10, 2, 'warrior.png', b[0], b[1], 'red', board, 10))
                 all_sprites = all_sprite
-                player.gold -= hero.gold
+                player.gold -= config.PATTERN[hero][0]
         else:
             print('Денег нет')
 
@@ -260,19 +254,6 @@ class City(pygame.sprite.Sprite):
     def update(self):
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
-
-        while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
-                self.rect.y != self.y * self.board.cell_size + self.board.top):
-            if self.rect.x > self.x * self.board.cell_size + self.board.left:
-                self.rect.x -= 1
-            if self.rect.x < self.x * self.board.cell_size + self.board.left:
-                self.rect.x += 1
-            if self.rect.y > self.y * self.board.cell_size + self.board.top:
-                self.rect.y -= 1
-            if self.rect.y < self.y * self.board.cell_size + self.board.top:
-                self.rect.y += 1
-            upd(self.board, self.groups()[0])
-
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
 
@@ -304,18 +285,5 @@ class Picture(pygame.sprite.Sprite):
     def update(self):
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
-
-        while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
-                self.rect.y != self.y * self.board.cell_size + self.board.top):
-            if self.rect.x > self.x * self.board.cell_size + self.board.left:
-                self.rect.x -= 1
-            if self.rect.x < self.x * self.board.cell_size + self.board.left:
-                self.rect.x += 1
-            if self.rect.y > self.y * self.board.cell_size + self.board.top:
-                self.rect.y -= 1
-            if self.rect.y < self.y * self.board.cell_size + self.board.top:
-                self.rect.y += 1
-            upd(self.board, self.groups()[0])
-
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
