@@ -81,8 +81,9 @@ class Board:
     def get_cell(self, mouse_pos):
         x, y = mouse_pos
         a, b = (x - self.left) // self.cell_size, (y - self.top) // self.cell_size
-        return int(a), int(b) if self.left + (self.cell_size * self.width) >= x >= self.top and self.top + (
-                self.cell_size * self.height) >= y >= self.top else None
+        return int(a), int(b) if self.left + (
+                self.cell_size * self.width) >= x >= self.top and self.top + (
+                                         self.cell_size * self.height) >= y >= self.top else None
 
     def zoom_to_center(self, diff):
         window_width, window_height = config.window_width, config.window_height
@@ -141,7 +142,8 @@ class Cell(pygame.sprite.Sprite):
 
 
 class Heroes(pygame.sprite.Sprite):
-    def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, gold, *group):
+    def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, gold,
+                 *group):
         super().__init__(*group)
         self.name = name
         self.damage = damage
@@ -237,12 +239,13 @@ class City(pygame.sprite.Sprite):
     def create_picture(self, hero, x, y, board, all_sprite, player):
         global all_sprites
         if player.gold > hero.gold and type(board.get_cell_object(x, y).content.get(
-                    'units', None)) == City:
+                'units', None)) == City:
             g = False
             for i in range(x - 1, x + 2):
                 for j in range(y - 1, y + 2):
                     if not board.get_cell_object(i, j).content.get('units', None):
-                        all_sprite.add(Heroes('warrior', 10, 30, 10, 2, 'warrior.png', i, j, 'red', board, 10))
+                        all_sprite.add(
+                            Heroes('warrior', 10, 30, 10, 2, 'warrior.png', i, j, 'red', board, 10))
                         all_sprites = all_sprite
                         g = True
                         player.gold -= hero.gold
