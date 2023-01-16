@@ -46,8 +46,60 @@ def continent(board, i, j, chance=0.5):
                     board.board[cell_y][cell_x].terrain = cht
 
 
+def generate_hills(board, i, j, chance=0.5):
+    terrains = board.TERRAINS.copy()
+    # terrains.remove('ocean')
+    num_isl = random.randint(1, 3)
+    for isl in range(num_isl):
+        x = random.randint(3, 7)
+        y = random.randint(3, 7)
+        cell_x = x + j * 10
+        cell_y = y + i * 10
+        size_chances = [0, 2, 4, 6, 7, 8, 9, 10, 11, 12]
+        hill_size = random.choice(size_chances)
+        board.board[cell_y][cell_x].terrain = 'plainHill'
+        for tile in range(hill_size):
+            random.choice(board.board[cell_y][cell_x].adjacent()).terrain = board.board[cell_y][
+                cell_x].terrain = 'plainHill'
+            if hill_size >= 6:
+                random.choice(
+                    random.choice(board.board[cell_y][cell_x].adjacent()).adjacent()).terrain = \
+                    board.board[cell_y][cell_x].terrain = 'plainHill'
+
+
+def generate_mountains(board, i, j, chance=0.5):
+    terrains = board.TERRAINS.copy()
+    # terrains.remove('ocean')
+    num_isl = random.randint(1, 5)
+    for isl in range(num_isl):
+        x = random.randint(3, 7)
+        y = random.randint(3, 7)
+        cell_x = x + j * 10
+        cell_y = y + i * 10
+        size_chances = [2, 4, 6]
+        hill_size = random.choice(size_chances)
+        board.board[cell_y][cell_x].terrain = 'mountain'
+        for tile in range(hill_size):
+            if hill_size >= 6:
+                random.choice(
+                    random.choice(board.board[cell_y][cell_x].adjacent()).adjacent()).terrain = \
+                    board.board[cell_y][cell_x].terrain = 'mountain'
+                continue
+            random.choice(board.board[cell_y][cell_x].adjacent()).terrain = board.board[cell_y][
+                cell_x].terrain = 'mountain'
+    # for y in range(10):
+    #     for x in range(10):
+    #         cell_x = x + j * 10
+    #         cell_y = y + i * 10
+    #         if sum([1 if el.terrain == 'mountain' else 0 for el in
+    #                 board.board[cell_y][cell_y].adjacent()]) == 4:
+    #             print([(el.x, el.y) for el in board.board[cell_y][cell_y].adjacent()])
+    #             board.board[cell_y][cell_x].terrain = 'mountain'
+
+
+
 CHUNKS = {'ocean': [generate_islands],
-          'plain': [continent],
+          'plain': [continent, generate_hills, generate_mountains],
           'deserts': {},
           'tundras': {},
           'hills': {},

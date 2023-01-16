@@ -57,7 +57,7 @@ class Board:
         self.cell_group = cell_group
         self.left = left
         self.top = top
-        self.TERRAINS = ['desert', 'plain', 'ocean']
+        self.TERRAINS = ['desert', 'plain', 'ocean', 'plainHill', 'mountain']
         self.tiles_images = {}
         self.tiles_images_originals = {}
         for el in self.TERRAINS:
