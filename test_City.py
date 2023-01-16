@@ -8,7 +8,7 @@ from Classes_City import City, Player, Picture
 from Classes import load_image, Board, Heroes, upd, World
 
 if __name__ == '__main__':
-    alpha = World(20, 20)
+    alpha = World(50, 50)
     pygame.init()
     all_sprites = pygame.sprite.Group()
     # создадим спрайт

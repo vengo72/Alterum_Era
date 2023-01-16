@@ -27,8 +27,27 @@ def generate_islands(board, i, j, chance=0.5):
                     board.board[cell_y][cell_x].terrain = island_terrain
 
 
+def continent(board, i, j, chance=0.5):
+    terrains = board.TERRAINS.copy()
+    for y in range(10):
+        for x in range(10):
+            cell_x = x + j * 10
+            cell_y = y + i * 10
+            if 0 < cell_x < board.width and 0 < cell_y < board.height:
+                cht = random.choice(board.board[cell_y][cell_x].adjacent()).terrain
+                board.board[cell_y][cell_x].terrain = cht
+
+        for y in range(10, -1, -1):
+            for x in range(10, -1, -1):
+                cell_x = x + j * 10
+                cell_y = y + i * 10
+                if 0 < cell_x < board.width and 0 < cell_y < board.height:
+                    cht = random.choice(board.board[cell_y][cell_x].adjacent()).terrain
+                    board.board[cell_y][cell_x].terrain = cht
+
+
 CHUNKS = {'ocean': [generate_islands],
-          'plains': {},
+          'plain': [continent],
           'deserts': {},
           'tundras': {},
           'hills': {},
@@ -41,4 +60,8 @@ CHUNKS = {'ocean': [generate_islands],
 #           board.board[y][x]
 # oceans: if VEROJATNOST summon island:
 #
-PANGEA = [['ocean', 'ocean'], ['ocean', 'ocean']]
+PANGEA = [['ocean', 'ocean', 'ocean', 'ocean', 'ocean'],
+          ['ocean', 'plain', 'plain', 'plain', 'ocean'],
+          ['ocean', 'plain', 'plain', 'plain', 'ocean'],
+          ['ocean', 'plain', 'plain', 'plain', 'ocean'],
+          ['ocean', 'ocean', 'ocean', 'ocean', 'ocean']]
