@@ -5,16 +5,18 @@ import map_types
 from Pil_test import unit_icon
 
 
-def upd(board, sprites):
+def upd(board, sprites, sp1):
     screen = config.screen
-    screen.fill(pygame.Color("black"))
+    board.render(screen)
 
+    screen.fill(pygame.Color("black"))
     board.render(screen)
     sprites.draw(screen)
+    sp1.draw(screen)
     pygame.display.flip()
 
 
-def load_image(name, color_key=None):
+def load_image(name, color_key='black'):
     fullname = os.path.join('data', name)
     try:
         image = pygame.image.load(fullname).convert()

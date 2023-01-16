@@ -3,15 +3,18 @@ import os
 import config
 from Pil_test import unit_icon
 import map_types
+import random
 
 
-def upd(board, sprites):
+def upd(board, sprites, sp1=''):
     screen = config.screen
     board.render(screen)
 
     screen.fill(pygame.Color("black"))
     board.render(screen)
     sprites.draw(screen)
+    if sp1:
+        sp1.draw(screen)
     pygame.display.flip()
 
 
@@ -139,10 +142,11 @@ class Cell(pygame.sprite.Sprite):
 
 
 class Heroes(pygame.sprite.Sprite):
-    def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, gold,
+    def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, gold, range,
                  *group):
         super().__init__(*group)
         self.name = name
+        self.range = range
         self.damage = damage
         self.health = health
         self.power = power
@@ -192,12 +196,35 @@ class Heroes(pygame.sprite.Sprite):
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
 
+    def fight(self, opponent, x, y):
+        if self is not opponent:
+            target_pixel_x, target_pixel_y = x, y
+            target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
+            if (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5) <= self.range:
+                self.health -= opponent.damage
+                opponent.health -= self.damage
+                if self.health <= 0 and opponent.health <= 0:
+                    self.board.board[self.x][self.y].content['units'] = None
+                    opponent.board.board[opponent.x][opponent.y].content['units'] = None
+                    self.kill()
+                    opponent.kill()
+                else:
+                    if self.health <= 0:
+                        self.board.board[self.x][self.y].content['units'] =\
+                            opponent.board.board[opponent.x][opponent.y].content['units']
+                        self.kill()
+                    if opponent.health <= 0:
+                        opponent.board.board[opponent.x][opponent.y].content['units'] =\
+                            self.board.board[self.x][self.y].content['units']
+                        opponent.kill()
+
 
 class City(pygame.sprite.Sprite):
-    def __init__(self, x, y, picture, board, color, *group):
+    def __init__(self, x, y, picture, board, color, player, *group):
         super().__init__(*group)
         self.board = board
         self.color = color
+        self.player = player
 
         self.orig_image = load_image(picture)
         self.image = pygame.transform.scale(self.orig_image.copy(),
@@ -215,41 +242,16 @@ class City(pygame.sprite.Sprite):
         if self.board.board[int(x)][int(y)].content['units'] is None:
             self.board.board[int(x)][int(y)].content['units'] = self
 
-    def create_unit(self, hero, x, y, board, all_sprite, player, event):
-        global all_sprites
-
-        if player.gold > config.PATTERN[hero][0] and type(board.get_cell_object(x, y).content.get(
+    def create_unit(self, hero, x, y, board, event, rang):
+        if self.player.gold > config.PATTERN[hero][0] and type(board.get_cell_object(x, y).content.get(
                 'units', None)) == City:
             a = event.pos
             b = board.get_cell(a)
             if (-1 <= x - b[0] <= 1) and (-1 <= y - b[1] <= 1) and (b[0] != 0 and b[1] != 0):
-                all_sprite.add(
-                    Heroes('warrior', 10, 30, 10, 2, 'warrior.png', b[0], b[1], 'red', board, 10))
-                all_sprites = all_sprite
-                player.gold -= config.PATTERN[hero][0]
+                self.player.gold -= config.PATTERN[hero][0]
+                return Heroes('warrior', 10, 30, 10, 2, 'warrior.png', b[0], b[1], self.color, board, 10, rang)
         else:
             print('Денег нет')
-
-    def create_picture(self, hero, x, y, board, all_sprite, player):
-        global all_sprites
-        if player.gold > hero.gold and type(board.get_cell_object(x, y).content.get(
-                'units', None)) == City:
-            g = False
-            for i in range(x - 1, x + 2):
-                for j in range(y - 1, y + 2):
-                    if not board.get_cell_object(i, j).content.get('units', None):
-                        all_sprite.add(
-                            Heroes('warrior', 10, 30, 10, 2, 'warrior.png', i, j, 'red', board, 10))
-                        all_sprites = all_sprite
-                        g = True
-                        player.gold -= hero.gold
-                        break
-                if g:
-                    break
-            if not g:
-                print('Ошибка')
-        else:
-            print('денег нет')
 
     def update(self):
         self.image = pygame.transform.scale(self.orig_image.copy(),
@@ -265,7 +267,9 @@ class Player:
         self.color = color
         self.name = name
         self.cities = dict()
-        self.cities['firstTown'] = City(5, 5, 'city.png', board, 'red')
+        self.x = random.randint(0, 11)
+        self.y = random.randint(0, 11)
+        self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
 
 
 class Picture(pygame.sprite.Sprite):
