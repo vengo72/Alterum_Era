@@ -5,14 +5,14 @@ import map_types
 from Pil_test import unit_icon
 
 
-def upd(board, sprites, sp1):
+def upd(board, sprites, sp1=''):
     screen = config.screen
     board.render(screen)
-
     screen.fill(pygame.Color("black"))
     board.render(screen)
     sprites.draw(screen)
-    sp1.draw(screen)
+    if sp1:
+        sp1.draw(screen)
     pygame.display.flip()
 
 
@@ -145,7 +145,8 @@ class Cell(pygame.sprite.Sprite):
 
 
 class Heroes(pygame.sprite.Sprite):
-    def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, gold, *group):
+    def __init__(self, name, damage, health, power, speed, picture, x, y, color, board, gold,
+                 *group):
         super().__init__(*group)
         self.name = name
         self.damage = damage
