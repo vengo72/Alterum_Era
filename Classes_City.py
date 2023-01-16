@@ -273,7 +273,7 @@ class Picture(pygame.sprite.Sprite):
         super().__init__(*group)
         self.board = board
         self.name = name
-        self.orig_image = load_image(name)
+        self.orig_image = load_image(name, color_key='black')
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
         self.rect = self.image.get_rect()
