@@ -295,3 +295,5 @@ class Picture(pygame.sprite.Sprite):
                                             (self.board.cell_size, self.board.cell_size))
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
+
+
