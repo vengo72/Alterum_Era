@@ -83,13 +83,16 @@ class Board:
                                          self.cell_size * self.height) >= y >= self.top else None
 
     def zoom_to_center(self, diff):
-        window_width, window_height = config.window_width, config.window_height
-        center_x, center_y = self.get_cell((window_width // 2, window_height // 2))
-        x_from_cell = window_width // 2 - center_x * self.cell_size - self.left
-        y_from_cell = window_height // 2 - center_y * self.cell_size - self.top
-        self.left = window_width // 2 - center_x * (self.cell_size + diff) - x_from_cell
-        self.top = window_height // 2 - center_y * (self.cell_size + diff) - y_from_cell
-        self.cell_size += diff
+        if 300 >= self.cell_size >= 3:
+            window_width, window_height = config.window_width, config.window_height
+            center_x, center_y = self.get_cell((window_width // 2, window_height // 2))
+            x_from_cell = window_width // 2 - center_x * self.cell_size - self.left
+            y_from_cell = window_height // 2 - center_y * self.cell_size - self.top
+            self.left = window_width // 2 - center_x * (self.cell_size + diff) - x_from_cell
+            self.top = window_height // 2 - center_y * (self.cell_size + diff) - y_from_cell
+            self.cell_size += diff
+        else:
+            self.cell_size = 3
 
     def get_cell_object(self, x, y):
         return self.board[int(x)][int(y)]

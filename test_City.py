@@ -36,14 +36,10 @@ if __name__ == '__main__':
     #         able_tiles.append((x, y))
     # x, y = random.choice(able_tiles)
     player = Player('blue', 'Vova', board_global)
+    config.turn_owner = 1
     player1 = Player('green', 'V1', board_global)
     all_sprites.add(player.cities['firstTown'])
     all_sprites.add(player1.cities['firstTown'])
-    g_image = load_image('arrow.png', color_key='green')
-    im = pygame.transform.scale(g_image.copy(), (100, 70))
-    rect = im.get_rect()
-    rect.x = 420
-    rect.y = 450
 
     while running:
         for event in pygame.event.get():

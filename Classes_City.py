@@ -267,8 +267,12 @@ class Player:
         self.color = color
         self.name = name
         self.cities = dict()
-        self.x = random.randint(0, 11)
-        self.y = random.randint(0, 11)
+        if config.turn_owner == 0:
+            self.x = 16
+            self.y = 25
+        else:
+            self.x = 34
+            self.y = 25
         self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
 
 

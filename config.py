@@ -6,4 +6,5 @@ screen = pygame.display.set_mode(size)
 cell_group = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 mish_sprites = pygame.sprite.Group()
-PATTERN = {'warrior' : [10]}
+PATTERN = {'warrior': [10]}
+turn_owner = 0
