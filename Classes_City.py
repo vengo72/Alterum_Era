@@ -4,6 +4,8 @@ import config
 from Pil_test import unit_icon
 import map_types
 import random
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 
 
 def upd(board, sprites, sp1=''):
@@ -61,6 +63,7 @@ class Board:
         self.cell_group = cell_group
         self.left = left
         self.top = top
+        self.TERRAINS = ['desert', 'plain', 'ocean', 'plainHill', 'mountain']
         self.TERRAINS = ['desert']
         self.tiles_images = {}
         self.tiles_images_originals = {}
@@ -150,11 +153,13 @@ class Heroes(pygame.sprite.Sprite):
         self.damage = damage
         self.health = health
         self.power = power
+        self.max_power = power
         self.speed = speed
         self.board = board
         self.color = color
         self.picture_name = picture
         self.gold = gold
+
         unit_icon(self.picture_name, self.color)
         self.orig_image = load_image(self.picture_name.split('.')[0] + '_' + color + '.png',
                                      color_key='black')
@@ -172,10 +177,11 @@ class Heroes(pygame.sprite.Sprite):
     def unit_move(self, x, y):
         target_pixel_x, target_pixel_y = x, y
         target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
-        if (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5) <= 2:
+        i = (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5)
+        if i <= 2 and self.power - i >= 0:
             self.board.board[self.x][self.y].content['units'] = None
             self.board.board[target_cell[0]][target_cell[1]].content['units'] = self
-
+            self.power -= i
             self.x = target_cell[0]
             self.y = target_cell[1]
             while (self.rect.x != self.x * self.board.cell_size + self.board.left) or (
@@ -197,10 +203,12 @@ class Heroes(pygame.sprite.Sprite):
         self.rect.y = self.y * self.board.cell_size + self.board.top
 
     def fight(self, opponent, x, y):
-        if self is not opponent:
+        if self.color is not opponent.color:
             target_pixel_x, target_pixel_y = x, y
             target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
-            if (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5) <= self.range:
+            i = (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5)
+            if i <= self.range and self.power >= 0:
+                self.power -= 1
                 self.health -= opponent.damage
                 opponent.health -= self.damage
                 if self.health <= 0 and opponent.health <= 0:
@@ -225,8 +233,12 @@ class City(pygame.sprite.Sprite):
         self.board = board
         self.color = color
         self.player = player
+        self.gold_per_move = 5
+        self.picture_name = picture
 
-        self.orig_image = load_image(picture)
+        unit_icon(self.picture_name, self.color)
+        self.orig_image = load_image(self.picture_name.split('.')[0] + '_' + color + '.png',
+                                     color_key='black')
         self.image = pygame.transform.scale(self.orig_image.copy(),
                                             (self.board.cell_size, self.board.cell_size))
         self.rect = self.image.get_rect()
@@ -234,13 +246,14 @@ class City(pygame.sprite.Sprite):
         self.rect.y = y * self.board.cell_size + self.board.top
         self.x = x
         self.y = y
+
         self.able_units = dict()
         self.able_units['Воин'] = True
+        self.able_units['Поселенец'] = True
         self.buildings = dict()
         self.buildings['Стены'] = False
 
-        if self.board.board[int(x)][int(y)].content['units'] is None:
-            self.board.board[int(x)][int(y)].content['units'] = self
+        self.board.board[int(x)][int(y)].content['units'] = self
 
     def create_unit(self, hero, x, y, board, event, rang):
         if self.player.gold > config.PATTERN[hero][0] and type(board.get_cell_object(x, y).content.get(
@@ -249,7 +262,8 @@ class City(pygame.sprite.Sprite):
             b = board.get_cell(a)
             if (-1 <= x - b[0] <= 1) and (-1 <= y - b[1] <= 1) and (b[0] != 0 and b[1] != 0):
                 self.player.gold -= config.PATTERN[hero][0]
-                return Heroes('warrior', 10, 30, 10, 2, 'warrior.png', b[0], b[1], self.color, board, 10, rang)
+                return Heroes(hero, 10, 30, 2, 2, hero + '.png', b[0], b[1], self.color,
+                              board, config.PATTERN[hero][0], rang)
         else:
             print('Денег нет')
 
@@ -267,13 +281,12 @@ class Player:
         self.color = color
         self.name = name
         self.cities = dict()
-        if config.turn_owner == 0:
-            self.x = 16
-            self.y = 25
+        self.x = random.randint(0, 11)
+        self.y = random.randint(0, 11)
+        if color == 'blue':
+            self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
         else:
-            self.x = 34
-            self.y = 25
-        self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
+            self.cities['firstTown'] = City(self.x, self.y, 'city1.png', board, color, self)
 
 
 class Picture(pygame.sprite.Sprite):
@@ -296,4 +309,92 @@ class Picture(pygame.sprite.Sprite):
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
 
+
+class Motion(pygame.sprite.Sprite):
+    def __init__(self, name, *group):
+        super().__init__(*group)
+        self.name = name
+        self.orig_image = load_image(name, color_key='black')
+        self.image = pygame.transform.scale(self.orig_image.copy(), (150, 130))
+        self.rect = self.image.get_rect()
+        self.rect.x = 365
+        self.rect.y = 385
+
+    def new_motion(self, all_spr, player, player1):
+        if config.turn_owner == 0:
+            config.turn_owner = 1
+        else:
+            config.turn_owner = 0
+        for i in all_spr:
+            if type(i) == Heroes:
+                i.power += i.max_power / 2
+                i.health += 2.5
+            elif type(i) == City:
+                if config.turn_owner == 0:
+                    player.gold += i.gold_per_move
+                else:
+                    player1.gold += i.gold_per_move
+
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Покупка")
+        Form.resize(244, 161)
+        self.pushButton = QtWidgets.QPushButton(Form)
+        self.pushButton.setGeometry(QtCore.QRect(10, 10, 113, 32))
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton_2 = QtWidgets.QPushButton(Form)
+        self.pushButton_2.setGeometry(QtCore.QRect(10, 50, 113, 32))
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_3 = QtWidgets.QPushButton(Form)
+        self.pushButton_3.setGeometry(QtCore.QRect(60, 110, 111, 41))
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.label = QtWidgets.QLabel(Form)
+        self.label.setGeometry(QtCore.QRect(130, 20, 91, 16))
+        self.label.setObjectName("label")
+        self.label_2 = QtWidgets.QLabel(Form)
+        self.label_2.setGeometry(QtCore.QRect(130, 60, 81, 16))
+        self.label_2.setObjectName("label_2")
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.pushButton.setText(_translate("Form", "Воин"))
+        self.pushButton_2.setText(_translate("Form", "Поселенец"))
+        self.pushButton_3.setText(_translate("Form", "Отмена"))
+        self.label.setText(_translate("Form", "10 Золотых"))
+        self.label_2.setText(_translate("Form", "20 Золотых"))
+
+    def show_city_messagebox(self):
+        choice = QMessageBox.question(self, 'Город', 'Вы хотите основать город?', QMessageBox.Yes | QMessageBox.No)
+        if choice == QMessageBox.Yes:  # 2
+            return True
+        elif choice == QMessageBox.No:
+            return False
+
+
+class Example(QMainWindow, Ui_Form):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+        self.pushButton.clicked.connect(self.run)
+        self.pushButton_2.clicked.connect(self.run)
+        self.pushButton_3.clicked.connect(self.run)
+
+    def closeEvent(self, event):
+        event.accept()
+
+    def run(self):
+        if self.sender().text() == 'Воин':
+            config.change_unit = 'warrior'
+            self.close()
+        elif self.sender().text() == 'Поселенец':
+            config.change_unit = 'settler'
+            self.close()
+        else:
+            self.close()
 
