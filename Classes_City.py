@@ -1,7 +1,7 @@
 import pygame
 import os
 import config
-from Pil_test import unit_icon
+from Pil_test import unit_icon, city_icon
 import map_types
 import random
 from PyQt5 import QtCore, QtWidgets
@@ -236,7 +236,7 @@ class City(pygame.sprite.Sprite):
         self.gold_per_move = 5
         self.picture_name = picture
 
-        unit_icon(self.picture_name, self.color)
+        city_icon(self.picture_name, self.color)
         self.orig_image = load_image(self.picture_name.split('.')[0] + '_' + color + '.png',
                                      color_key='black')
         self.image = pygame.transform.scale(self.orig_image.copy(),
@@ -286,7 +286,7 @@ class Player:
         if color == 'blue':
             self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
         else:
-            self.cities['firstTown'] = City(self.x, self.y, 'city1.png', board, color, self)
+            self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
 
 
 class Picture(pygame.sprite.Sprite):
