@@ -258,7 +258,7 @@ class City(pygame.sprite.Sprite):
     def create_unit(self, hero, x, y, board, event, rang):
         if self.player.gold > config.PATTERN[hero][0] and type(
                 board.get_cell_object(x, y).content.get(
-                        'units', None)) == City:
+                    'units', None)) == City:
             a = event.pos
             b = board.get_cell(a)
             if (-1 <= x - b[0] <= 1) and (-1 <= y - b[1] <= 1) and (b[0] != 0 and b[1] != 0):

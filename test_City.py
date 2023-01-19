@@ -57,15 +57,17 @@ def main_cycle():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                 cl = -1
                 un = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
-                        'units')
+                    'units')
                 mish_sprites = pygame.sprite.Group()
                 if not un:
-                    if unit and type(unit) != City and (config.turn_owner == 1 and first_player == unit.color or
-                                                        config.turn_owner == 0 and second_player == unit.color):
+                    if unit and type(unit) != City and (
+                            config.turn_owner == 1 and first_player == unit.color or
+                            config.turn_owner == 0 and second_player == unit.color):
                         unit.unit_move(*event.pos)
                         all_sprites.update()
-                elif un and type(unit) != City and (config.turn_owner == 1 and first_player == unit.color or
-                                                    config.turn_owner == 0 and second_player == unit.color):
+                elif un and type(unit) != City and (
+                        config.turn_owner == 1 and first_player == unit.color or
+                        config.turn_owner == 0 and second_player == unit.color):
                     unit.fight(un, event.pos[0], event.pos[1])
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mish_sprites = pygame.sprite.Group()
@@ -74,11 +76,14 @@ def main_cycle():
                     moution.new_motion(all_sprites, player, player1)
                     cl = 0
                     continue
-                unit = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get('units', None)
+                unit = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
+                    'units', None)
                 if type(unit) != City and unit:
-                    if unit == board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get('units',
-                                            None) and unit.name == 'settler' and cl >= 2 and (config.turn_owner == 1 and first_player == unit.color or
-                                           config.turn_owner == 0 and second_player == unit.color):
+                    if unit == board_global.get_cell_object(
+                            *board_global.get_cell(event.pos)).content.get('units',
+                                                                           None) and unit.name == 'settler' and cl >= 2 and (
+                            config.turn_owner == 1 and first_player == unit.color or
+                            config.turn_owner == 0 and second_player == unit.color):
                         f, b = unit.x, unit.y
                         cl = 0
                         t = ex.show_city_messagebox()
@@ -86,10 +91,12 @@ def main_cycle():
                             unit.kill()
                             unit = ''
                             if config.turn_owner == 0:
-                                player1.cities['Town'] = City(f, b, 'city.png', board_global, player1.color, player1)
+                                player1.cities['Town'] = City(f, b, 'city.png', board_global,
+                                                              player1.color, player1)
                                 all_sprites.add(player1.cities['Town'])
                             else:
-                                player.cities['Town'] = City(f, b, 'city.png', board_global, player.color, player)
+                                player.cities['Town'] = City(f, b, 'city.png', board_global,
+                                                             player.color, player)
                                 all_sprites.add(player.cities['Town'])
                             t = False
                 if cit:
@@ -105,10 +112,12 @@ def main_cycle():
                         for j in range(board_global.get_cell(event.pos)[1] - 1,
                                        board_global.get_cell(event.pos)[1] + 2):
                             if not board_global.get_cell_object(i, j).content.get('units', None):
-                                if i != board_global.get_cell(event.pos)[0] or j != board_global.get_cell(event.pos)[1]:
+                                if i != board_global.get_cell(event.pos)[0] or j != \
+                                        board_global.get_cell(event.pos)[1]:
                                     mish_sprites.add(Picture('mish.png', board_global, i, j))
-                elif not unit and select_unit and (config.turn_owner == 1 and first_player == select_unit.color or
-                                                   config.turn_owner == 0 and second_player == select_unit.color)\
+                elif not unit and select_unit and (
+                        config.turn_owner == 1 and first_player == select_unit.color or
+                        config.turn_owner == 0 and second_player == select_unit.color) \
                         and config.change_unit:
                     gh = select_unit.create_unit(config.change_unit, select_unit.x, select_unit.y,
                                                  board_global, event, 1)
@@ -133,3 +142,7 @@ def main_cycle():
         upd(board_global, all_sprites, mish_sprites)
         pygame.display.flip()
     pygame.quit()
+
+
+if __name__ == '__main__':
+    main_cycle()

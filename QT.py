@@ -21,7 +21,6 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.hide()
         main_cycle()
 
-
     def leaderboard(self):
         pass
 
