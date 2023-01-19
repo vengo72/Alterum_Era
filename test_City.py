@@ -8,7 +8,7 @@ from Classes import load_image, upd, World
 from Classes_City import Example
 
 
-if __name__ == '__main__':
+def main_cycle():
     alpha = World(50, 50)
     # создадим спрайт
     running = True

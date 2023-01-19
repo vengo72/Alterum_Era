@@ -218,11 +218,11 @@ class Heroes(pygame.sprite.Sprite):
                     opponent.kill()
                 else:
                     if self.health <= 0:
-                        self.board.board[self.x][self.y].content['units'] =\
+                        self.board.board[self.x][self.y].content['units'] = \
                             opponent.board.board[opponent.x][opponent.y].content['units']
                         self.kill()
                     if opponent.health <= 0:
-                        opponent.board.board[opponent.x][opponent.y].content['units'] =\
+                        opponent.board.board[opponent.x][opponent.y].content['units'] = \
                             self.board.board[self.x][self.y].content['units']
                         opponent.kill()
 
@@ -256,8 +256,9 @@ class City(pygame.sprite.Sprite):
         self.board.board[int(x)][int(y)].content['units'] = self
 
     def create_unit(self, hero, x, y, board, event, rang):
-        if self.player.gold > config.PATTERN[hero][0] and type(board.get_cell_object(x, y).content.get(
-                'units', None)) == City:
+        if self.player.gold > config.PATTERN[hero][0] and type(
+                board.get_cell_object(x, y).content.get(
+                        'units', None)) == City:
             a = event.pos
             b = board.get_cell(a)
             if (-1 <= x - b[0] <= 1) and (-1 <= y - b[1] <= 1) and (b[0] != 0 and b[1] != 0):
@@ -369,7 +370,8 @@ class Ui_Form(object):
         self.label_2.setText(_translate("Form", "20 Золотых"))
 
     def show_city_messagebox(self):
-        choice = QMessageBox.question(self, 'Город', 'Вы хотите основать город?', QMessageBox.Yes | QMessageBox.No)
+        choice = QMessageBox.question(self, 'Город', 'Вы хотите основать город?',
+                                      QMessageBox.Yes | QMessageBox.No)
         if choice == QMessageBox.Yes:  # 2
             return True
         elif choice == QMessageBox.No:
@@ -397,4 +399,3 @@ class Example(QMainWindow, Ui_Form):
             self.close()
         else:
             self.close()
-
