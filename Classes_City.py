@@ -285,10 +285,11 @@ class Player:
         self.x = random.randint(0, 11)
         self.y = random.randint(0, 11)
         if color == 'blue':
-            self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
+            self.cities['firstTown'] = City(15, 15, 'city.png', board, color, self)
         else:
-            self.cities['firstTown'] = City(self.x, self.y, 'city.png', board, color, self)
-
+            self.cities['firstTown'] = City(35, 35, 'city.png', board, color, self)
+        if not board.path_find(15, 15, 35, 35):
+            pygame.quit()
 
 class Picture(pygame.sprite.Sprite):
     def __init__(self, name, board, x, y, *group):
