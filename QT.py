@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import time
 
 from PyQt5.QtSql import QSqlTableModel, QSqlDatabase
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QLabel, QStyledItemDelegate, \
@@ -21,7 +22,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.pushButton_3.clicked.connect(self.other)
 
     def start(self):
-        # self.hide()
+        self.hide()
         main_cycle()
 
     def leaderboard(self):
@@ -70,4 +71,4 @@ if __name__ == '__main__':
     ax = MyWidget_2()
     ax.hide()
     sys.exit(app.exec_())
-    pygame.quit()
+
