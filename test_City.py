@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import config
 import sys
@@ -50,6 +52,7 @@ def main_cycle():
     app = QApplication(sys.argv)
     en = End()
     en.hide()
+
     ex = Example()
 
     while running:
@@ -133,20 +136,27 @@ def main_cycle():
                 board_global.update()
                 all_sprites.update()
                 mish_sprites.update()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    en.show()
-
-        board_global.scroll()
-        screen.fill((0, 0, 0))
-        cell_group.update()
-        board_global.update()
-        cell_group.draw(screen)
-        all_sprites.update()
-        mish_sprites.update()
-        upd(board_global, all_sprites, mish_sprites)
-        pygame.display.flip()
-    pygame.quit()
+            if player.cit == 0:
+                pygame.quit()
+                running = False
+                break
+            elif player1.cit == 0:
+                pygame.quit()
+                running = False
+                break
+        if running:
+            board_global.scroll()
+            screen.fill((0, 0, 0))
+            cell_group.update()
+            board_global.update()
+            cell_group.draw(screen)
+            all_sprites.update()
+            mish_sprites.update()
+            upd(board_global, all_sprites, mish_sprites)
+            pygame.display.flip()
+    app = QApplication(sys.argv)
+    en.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
