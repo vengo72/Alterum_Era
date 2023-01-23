@@ -134,7 +134,8 @@ def main_cycle():
                 all_sprites.update()
                 mish_sprites.update()
             if event.type == pygame.KEYDOWN:
-                en.show()
+                if event.key == pygame.K_w:
+                    en.show()
 
         board_global.scroll()
         screen.fill((0, 0, 0))

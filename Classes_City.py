@@ -282,8 +282,6 @@ class Player:
         self.color = color
         self.name = name
         self.cities = dict()
-        self.x = random.randint(0, 11)
-        self.y = random.randint(0, 11)
         if color == 'blue':
             self.cities['firstTown'] = City(15, 15, 'city.png', board, color, self)
         else:
