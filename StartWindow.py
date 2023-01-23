@@ -10,6 +10,7 @@
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QBrush
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize
+from PyQt5.QtWidgets import QLabel
 
 
 class Ui_MainWindow(object):
@@ -56,3 +57,32 @@ class Ui_MainWindow(object):
         self.pushButton.setText(_translate("MainWindow", "Начать игру"))
         self.pushButton_2.setText(_translate("MainWindow", "Таблица рекордов"))
         self.pushButton_3.setText(_translate("MainWindow", "Прочее"))
+
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(873, 650)
+        oImage = QImage("data/win.jpg")
+        sImage = oImage.scaled(QSize(900, 700))
+        palette = QPalette()
+        palette.setBrush(QPalette.Window, QBrush(sImage))
+        self.setPalette(palette)
+
+        self.pushButton = QtWidgets.QPushButton(Form)
+        self.pushButton.setGeometry(QtCore.QRect(350, 600, 150, 50))
+        self.pushButton.setObjectName("pushButton")
+
+        self.tableWidget = QtWidgets.QTableWidget(Form)
+        self.tableWidget.setGeometry(QtCore.QRect(550, 500, 310, 150))
+        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setColumnCount(3)
+        self.tableWidget.setRowCount(0)
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        self.pushButton.setText(_translate("Form", "Главное меню"))
+        Form.setWindowTitle(_translate("Form", "Поздравляем с победой!"))
