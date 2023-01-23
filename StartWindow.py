@@ -52,7 +52,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Главное окно"))
         self.pushButton.setText(_translate("MainWindow", "Начать игру"))
         self.pushButton_2.setText(_translate("MainWindow", "Таблица рекордов"))
         self.pushButton_3.setText(_translate("MainWindow", "Прочее"))
