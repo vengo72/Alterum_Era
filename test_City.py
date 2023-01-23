@@ -46,7 +46,6 @@ def main_cycle():
     moution = Motion('arrow.png')
     cl = 0
     all_sprites.add(moution)
-
     app = QApplication(sys.argv)
     ex = Example()
 

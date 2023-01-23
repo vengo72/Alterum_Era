@@ -58,9 +58,9 @@ class MyWidget_2(QMainWindow, Ui_Form):
             que = "UPDATE Main\nSET"
             que += ' Leaderboard = ?\n'
             que += "WHERE id = ?"
-            print(que, i)
             cur.execute(que,
                         (self.tableWidget.item(i, 3).text(), self.tableWidget.item(i, 0).text()))
+            self.con.commit()
 
 
 if __name__ == '__main__':

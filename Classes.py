@@ -3,6 +3,7 @@ import os
 import config
 import map_types
 from Pil_test import unit_icon
+from numpy import array
 
 
 def upd(board, sprites, sp1=''):
@@ -114,6 +115,33 @@ class Board:
         elif keys[pygame.K_DOWN]:
             self.top -= 3
         config.all_sprites.update()
+
+    def path_find(self, x, y, x_target, y_target):
+        ar = array(self.board)
+        x_min, x_max = min(x, x_target), max(x, x_target)
+        y_min, y_max = min(y, y_target), max(y, y_target)
+        ar = ar[y_min:y_max + 1, x_min:x_max + 1]
+        possibility = [[0] * len(ar[0]) for _ in range(len(ar))]
+        possibility[0][0] = 1
+        for i in range(1, len(possibility[0])):
+            if ar[0][i].terrain == 'mountain' or ar[0][i].terrain == 'ocean':
+                possibility[0][i] = 0
+            else:
+                possibility[0][i] = possibility[0][i - 1]
+        for i in range(1, len(possibility)):
+            if ar[i][0].terrain == 'mountain' or ar[i][0].terrain == 'ocean':
+                possibility[i][0] = 0
+            else:
+                possibility[i][0] = possibility[i - 1][0]
+        for i in range(1, len(possibility)):
+            for j in range(1, len(possibility[0])):
+                if ar[i][j].terrain == 'mountain' or ar[i][j].terrain == 'ocean':
+                    possibility[i][j] = 0
+                else:
+                    possibility[i][j] = max(possibility[i - 1][j], possibility[i][j - 1])
+        if possibility[-1][-1] == 1:
+            return True
+        return False
 
 
 class Cell(pygame.sprite.Sprite):

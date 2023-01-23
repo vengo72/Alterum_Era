@@ -100,7 +100,7 @@ def generate_mountains(board, i, j, chance=0.5):
 
 CHUNKS = {'ocean': [generate_islands],
           'plain': [continent, generate_hills, generate_mountains],
-          'deserts': {},
+          'desert': [],
           'tundras': {},
           'hills': {},
           'forests': {},
@@ -117,3 +117,4 @@ PANGEA = [['ocean', 'ocean', 'ocean', 'ocean', 'ocean'],
           ['ocean', 'plain', 'plain', 'plain', 'ocean'],
           ['ocean', 'plain', 'plain', 'plain', 'ocean'],
           ['ocean', 'ocean', 'ocean', 'ocean', 'ocean']]
+
