@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication
 from Classes_City import City, Player, Picture, Motion
 from Classes import load_image, upd, World
 from Classes_City import Example
+from Win import End
 
 
 def main_cycle():
@@ -47,6 +48,8 @@ def main_cycle():
     cl = 0
     all_sprites.add(moution)
     app = QApplication(sys.argv)
+    en = End()
+    en.hide()
     ex = Example()
 
     while running:
@@ -130,6 +133,8 @@ def main_cycle():
                 board_global.update()
                 all_sprites.update()
                 mish_sprites.update()
+            if event.type == pygame.KEYDOWN:
+                en.show()
 
         board_global.scroll()
         screen.fill((0, 0, 0))
