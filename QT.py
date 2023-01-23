@@ -45,20 +45,29 @@ class MyWidget_2(QMainWindow, Ui_Form):
         self.tableWidget.setHorizontalHeaderLabels(['ID', 'Имя Игрока', 'Очки', 'Место'])
         cur = self.con.cursor()
         data = cur.execute("SELECT * FROM Main").fetchall()
+        data.sort(key=lambda x: int(x[-2]), reverse=True)
         self.tableWidget.setRowCount(5)
         self.tableWidget.setColumnCount(4)
         for i in range(len(data)):
-            print(data)
-            print(data[i])
-            for j in range(len(data[i])):
-                print(data[i][j])
+            for j in range(len(data[i]) - 1):
                 self.tableWidget.setItem(i, j, QTableWidgetItem(str(data[i][j])))
+            self.tableWidget.setItem(i, 3, QTableWidgetItem(str(i + 1)))
+
+        for i in range(len(data)):
+            cur = self.con.cursor()
+            que = "UPDATE Main\nSET"
+            que += ' Leaderboard = ?\n'
+            que += "WHERE id = ?"
+            print(que, i)
+            cur.execute(que,
+                        (self.tableWidget.item(i, 3).text(), self.tableWidget.item(i, 0).text()))
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MyWidget()
     ex.show()
     ax = MyWidget_2()
-    ax.hide
+    ax.hide()
     sys.exit(app.exec_())
     pygame.quit()
