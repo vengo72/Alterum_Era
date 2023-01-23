@@ -222,6 +222,9 @@ class Heroes(pygame.sprite.Sprite):
                             opponent.board.board[opponent.x][opponent.y].content['units']
                         self.kill()
                     if opponent.health <= 0:
+                        if type(opponent) == City:
+                            opponent.player.cit -= 1
+                        print(opponent.player.cit)
                         opponent.board.board[opponent.x][opponent.y].content['units'] = \
                             self.board.board[self.x][self.y].content['units']
                         opponent.kill()
@@ -232,10 +235,13 @@ class City(pygame.sprite.Sprite):
         super().__init__(*group)
         self.board = board
         self.color = color
+        player.max_pl += 1
+        player.cit += 1
         self.player = player
         self.gold_per_move = 5
         self.picture_name = picture
-
+        self.health = 50
+        self.damage = 10
         city_icon(self.picture_name, self.color)
         self.orig_image = load_image(self.picture_name.split('.')[0] + '_' + color + '.png',
                                      color_key='black')
@@ -280,14 +286,19 @@ class Player:
         self.gold = 100
         self.science = 10
         self.color = color
+        self.cit = 0
+        self.max_pl = 1
         self.name = name
         self.cities = dict()
         if color == 'blue':
+            self.x = 15
+            self.y = 15
             self.cities['firstTown'] = City(15, 15, 'city.png', board, color, self)
         else:
+            self.x = 35
+            self.y = 35
             self.cities['firstTown'] = City(35, 35, 'city.png', board, color, self)
-        if not board.path_find(15, 15, 35, 35):
-            pygame.quit()
+
 
 class Picture(pygame.sprite.Sprite):
     def __init__(self, name, board, x, y, *group):
