@@ -10,7 +10,7 @@
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QBrush
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QLabel, QHeaderView
+from PyQt5.QtWidgets import QLabel
 
 
 class Ui_MainWindow(object):
@@ -75,9 +75,6 @@ class Ui_Form(object):
         self.tableWidget.setColumnCount(3)
         self.tableWidget.setRowCount(1)
         self.tableWidget.setHorizontalHeaderLabels(['Количество ходов', 'Количество городов', 'Победные очки'])
-
-
-
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
