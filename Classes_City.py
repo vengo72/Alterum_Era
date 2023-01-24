@@ -294,10 +294,12 @@ class Player:
             self.x = 15
             self.y = 15
             self.cities['firstTown'] = City(15, 15, 'city.png', board, color, self)
+            board.board[15][15].terrain = 'plain'
         else:
             self.x = 35
             self.y = 35
             self.cities['firstTown'] = City(35, 35, 'city.png', board, color, self)
+            board.board[35][35].terrain = 'plain'
 
 
 class Picture(pygame.sprite.Sprite):
