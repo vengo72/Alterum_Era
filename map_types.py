@@ -70,13 +70,13 @@ def generate_hills(board, i, j, chance=0.5):
 def generate_mountains(board, i, j, chance=0.5):
     terrains = board.TERRAINS.copy()
     # terrains.remove('ocean')
-    num_isl = random.randint(1, 5)
+    num_isl = random.randint(1, 3)
     for isl in range(num_isl):
         x = random.randint(3, 7)
         y = random.randint(3, 7)
         cell_x = x + j * 10
         cell_y = y + i * 10
-        size_chances = [2, 4, 6]
+        size_chances = [2, 4, 4]
         hill_size = random.choice(size_chances)
         board.board[cell_y][cell_x].terrain = 'mountain'
         for tile in range(hill_size):
