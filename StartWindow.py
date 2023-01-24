@@ -10,7 +10,7 @@
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QBrush
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QHeaderView
 
 
 class Ui_MainWindow(object):
@@ -69,20 +69,18 @@ class Ui_Form(object):
         palette.setBrush(QPalette.Window, QBrush(sImage))
         self.setPalette(palette)
 
-        self.pushButton = QtWidgets.QPushButton(Form)
-        self.pushButton.setGeometry(QtCore.QRect(350, 600, 150, 50))
-        self.pushButton.setObjectName("pushButton")
-
         self.tableWidget = QtWidgets.QTableWidget(Form)
-        self.tableWidget.setGeometry(QtCore.QRect(550, 500, 310, 150))
+        self.tableWidget.setGeometry(QtCore.QRect(200, 200, 500, 300))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(3)
-        self.tableWidget.setRowCount(0)
+        self.tableWidget.setRowCount(1)
+        self.tableWidget.setHorizontalHeaderLabels(['Количество ходов', 'Количество городов', 'Победные очки'])
+
+
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        self.pushButton.setText(_translate("Form", "Главное меню"))
         Form.setWindowTitle(_translate("Form", "Поздравляем с победой!"))
