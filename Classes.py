@@ -53,6 +53,9 @@ class World:
                 for func in map_types.CHUNKS[self.chunks[i][j]]:
                     func(self.board, i, j)
 
+        self.turn_count = 1
+        self.city_count = 2
+
 
 class Board:
     def __init__(self, width, height, cell_size, cell_group, top=10, left=10, *args, **kwargs):
