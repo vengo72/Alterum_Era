@@ -19,6 +19,7 @@ def main_cycle():
     unit = None
 
     cell_group = config.cell_group
+
     all_sprites = config.all_sprites
     mish_sprites = config.mish_sprites
     pygame.init()
@@ -52,6 +53,9 @@ def main_cycle():
     app = QApplication(sys.argv)
     en = End()
     en.hide()
+    if not alpha.board.path_find(15, 15, 35, 35):
+        pygame.quit()
+        print('exit')
 
     ex = Example()
 
@@ -68,8 +72,9 @@ def main_cycle():
                     if unit and type(unit) != City and (
                             config.turn_owner == 1 and first_player == unit.color or
                             config.turn_owner == 0 and second_player == unit.color):
-                        unit.unit_move(*event.pos)
-                        all_sprites.update()
+                        if board_global.path_find(unit.x, unit.y, *board_global.get_cell(event.pos)):
+                            unit.unit_move(*event.pos)
+                            all_sprites.update()
                 elif un and type(unit) != City and (
                         config.turn_owner == 1 and first_player == unit.color or
                         config.turn_owner == 0 and second_player == unit.color):
@@ -136,6 +141,10 @@ def main_cycle():
                 board_global.update()
                 all_sprites.update()
                 mish_sprites.update()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    en.show()
+                    print('en')
             if player.cit == 0:
                 pygame.quit()
                 running = False
