@@ -85,6 +85,7 @@ def main_cycle():
                 if event.pos[0] > 365 and event.pos[1] > 385:
                     moution.new_motion(all_sprites, player, player1)
                     cl = 0
+                    alpha.turn_count += 1
                     continue
                 unit = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
                     'units', None)
@@ -109,6 +110,7 @@ def main_cycle():
                                                              player.color, player)
                                 all_sprites.add(player.cities['Town'])
                             t = False
+                            alpha.city_count += 1
                 if cit:
                     cit = False
                 if type(unit) == City and (config.turn_owner == 1 and first_player == unit.color or
@@ -144,6 +146,7 @@ def main_cycle():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
                     en.show()
+                    en.load(alpha, player.name)
                     print('en')
             if player.cit == 0:
                 pygame.quit()
