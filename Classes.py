@@ -125,11 +125,14 @@ class Board:
         y_min, y_max = min(y, y_target), max(y, y_target)
         ar = ar[y_min:y_max + 1, x_min:x_max + 1]
         possibility = [[0] * len(ar[0]) for _ in range(len(ar))]
-        if ar[0][0].terrain != 'mountain' and ar[0][0].terrain != 'ocean':
-            possibility[0][0] = 1
+
         if (x < x_target and y > y_target) or (x > x_target and y < y_target):
             possibility = list(map(list, zip(*possibility[::-1])))
             ar = list(zip(*ar[::-1]))
+            print(ar)
+            print(possibility)
+        if ar[0][0].terrain != 'mountain' and ar[0][0].terrain != 'ocean':
+            possibility[0][0] = 1
         for i in range(1, len(possibility[0])):
             if ar[0][i].terrain == 'mountain' or ar[0][i].terrain == 'ocean':
                 possibility[0][i] = 0

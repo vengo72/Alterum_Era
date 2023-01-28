@@ -20,6 +20,9 @@ def city_icon(icon_name, color):
     new_image.paste(image, (64, 64), image)
     new_image.save(f'data/{icon_name.split(".")[0]}_{color}.png')
 
+def change_transparency():
+    pass
+
 
 if __name__ == '__main__':
     print('start')

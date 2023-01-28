@@ -1,5 +1,3 @@
-import time
-
 import pygame
 import config
 import sys
@@ -13,6 +11,10 @@ from Win import End
 
 def main_cycle():
     alpha = World(50, 50)
+    while not alpha.board.path_find(15, 15, 35, 35):
+        config.reload_map()
+        alpha = World(50, 50)
+        print('exit')
     # создадим спрайт
     running = True
     cit = False
@@ -35,15 +37,11 @@ def main_cycle():
     screen.fill(pygame.Color("black"))
     select_unit = False
     gl_screen = screen
-    # for y in range(board_global.height):
-    #     for x in range(board_global.weight):
-    #         able_tiles.append((x, y))
-    # x, y = random.choice(able_tiles)
     first_player = 'blue'
     second_player = 'green'
-    player = Player(first_player, 'Vova', board_global)
+    player = Player(first_player, config.first_player_name, board_global)
     config.turn_owner = 1
-    player1 = Player(second_player, 'V1', board_global)
+    player1 = Player(second_player, config.second_player_name, board_global)
     all_sprites.add(player.cities['firstTown'])
     all_sprites.add(player1.cities['firstTown'])
     moution = Motion('arrow.png')
@@ -51,9 +49,6 @@ def main_cycle():
     app = QApplication(sys.argv)
     en = End()
     en.hide()
-    if not alpha.board.path_find(15, 15, 35, 35):
-        pygame.quit()
-        print('exit')
 
     ex = Example()
 
@@ -65,6 +60,7 @@ def main_cycle():
                 if event.key == pygame.K_SPACE:
                     moution.new_motion(all_sprites, player, player1)
                     cl = 0
+                    alpha.turn_count += 1
                     continue
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                 cl = -1
@@ -144,7 +140,10 @@ def main_cycle():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
                     en.show()
-                    en.load(alpha, player.name)
+                    if config.turn_owner == 0:
+                        en.load(alpha, player.name)
+                    else:
+                        en.load(alpha, player1.name)
                     print('en')
             if player.cit == 0:
                 pygame.quit()

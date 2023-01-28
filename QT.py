@@ -1,12 +1,13 @@
 import sqlite3
 import sys
 import time
+import config
 
 from PyQt5.QtSql import QSqlTableModel, QSqlDatabase
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QLabel, QStyledItemDelegate, \
-    QTableWidget, QMessageBox
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QRegExpValidator, QPalette, QColor
+    QTableWidget, QMessageBox, QFileDialog, QInputDialog
+from PyQt5 import QtWidgets, QtCore
+
 from StartWindow import Ui_MainWindow
 from test_City import main_cycle
 from RecordsWindow import Ui_Form
@@ -22,6 +23,8 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.pushButton_3.clicked.connect(self.other)
 
     def start(self):
+        config.first_player_name = self.showDialog()
+        config.second_player_name = self.showDialog()
         self.hide()
         main_cycle()
 
@@ -30,6 +33,12 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             ax.show()
         else:
             ax.hide()
+    def showDialog(self):
+        text, ok = QInputDialog.getText(self, 'Выбор имени',
+            'Введите имя игрока')
+
+        if ok:
+            return text
 
     def other(self):
         pass
@@ -41,13 +50,15 @@ class MyWidget_2(QMainWindow, Ui_Form):
         self.setupUi(self)
         DB_NAME = 'Alterum_Era_DB.db'
         self.con = sqlite3.connect(DB_NAME)
+        self.resize(600, 280)
+        self.tableWidget.setGeometry(QtCore.QRect(70, 40, 450, 200))
         self.model = QSqlTableModel()
         # self.tableWidget.setModel(self.model)
         self.tableWidget.setHorizontalHeaderLabels(['ID', 'Имя Игрока', 'Очки', 'Место'])
         cur = self.con.cursor()
         data = cur.execute("SELECT * FROM Main").fetchall()
         data.sort(key=lambda x: int(x[-2]), reverse=True)
-        self.tableWidget.setRowCount(5)
+        self.tableWidget.setRowCount(len(data))
         self.tableWidget.setColumnCount(4)
         for i in range(len(data)):
             for j in range(len(data[i]) - 1):
@@ -71,4 +82,3 @@ if __name__ == '__main__':
     ax = MyWidget_2()
     ax.hide()
     sys.exit(app.exec_())
-

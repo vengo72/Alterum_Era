@@ -5,7 +5,7 @@ from Pil_test import unit_icon, city_icon
 import map_types
 import random
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QInputDialog
 
 
 def upd(board, sprites, sp1=''):
@@ -177,8 +177,8 @@ class Heroes(pygame.sprite.Sprite):
     def unit_move(self, x, y):
         target_pixel_x, target_pixel_y = x, y
         target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
-        i = (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5)
-        if i <= 2 and self.power - i >= 0:
+        i = abs(self.x - target_cell[0]) + abs(self.y - target_cell[1])
+        if i <= self.speed and self.power - i >= 0:
             self.board.board[self.x][self.y].content['units'] = None
             self.board.board[target_cell[0]][target_cell[1]].content['units'] = self
             self.power -= i
@@ -206,7 +206,7 @@ class Heroes(pygame.sprite.Sprite):
         if self.color is not opponent.color:
             target_pixel_x, target_pixel_y = x, y
             target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
-            i = (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5)
+            i = abs(self.x - x) + abs(self.y - y)
             if i <= self.range and self.power >= 0:
                 self.power -= 1
                 self.health -= opponent.damage
@@ -218,8 +218,8 @@ class Heroes(pygame.sprite.Sprite):
                     opponent.kill()
                 else:
                     if self.health <= 0:
-                        self.board.board[self.x][self.y].content['units'] = \
-                            opponent.board.board[opponent.x][opponent.y].content['units']
+                        self.board.board[self.x][self.y].content['units'] = opponent
+                        opponent.board.board[opponent.x][opponent.y] = None
                         self.kill()
                     if opponent.health <= 0:
                         if type(opponent) == City:
@@ -240,8 +240,8 @@ class City(pygame.sprite.Sprite):
         self.player = player
         self.gold_per_move = 5
         self.picture_name = picture
-        self.health = 50
-        self.damage = 10
+        self.health = 20
+        self.damage = 0
         city_icon(self.picture_name, self.color)
         self.orig_image = load_image(self.picture_name.split('.')[0] + '_' + color + '.png',
                                      color_key='black')
