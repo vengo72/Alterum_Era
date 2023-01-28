@@ -1,12 +1,10 @@
 import sqlite3
 import sys
-import time
 import config
 
-from PyQt5.QtSql import QSqlTableModel, QSqlDatabase
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QLabel, QStyledItemDelegate, \
-    QTableWidget, QMessageBox, QFileDialog, QInputDialog
-from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtSql import QSqlTableModel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QInputDialog
+from PyQt5 import QtCore
 
 from StartWindow import Ui_MainWindow
 from test_City import main_cycle

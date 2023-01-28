@@ -4,7 +4,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 from Classes_City import City, Player, Picture, Motion
-from Classes import load_image, upd, World
+from Classes import upd, World
 from Classes_City import Example
 from Win import End
 

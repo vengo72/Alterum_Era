@@ -1,5 +1,3 @@
-import os
-import pygame
 from PIL import Image, ImageDraw
 
 

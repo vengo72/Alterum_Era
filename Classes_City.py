@@ -3,9 +3,8 @@ import os
 import config
 from Pil_test import unit_icon, city_icon
 import map_types
-import random
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 
 
 def upd(board, sprites, sp1=''):
