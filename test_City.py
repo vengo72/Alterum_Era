@@ -46,10 +46,8 @@ def main_cycle():
     player1 = Player(second_player, 'V1', board_global)
     all_sprites.add(player.cities['firstTown'])
     all_sprites.add(player1.cities['firstTown'])
-    g_image = load_image('arrow.png', color_key='green')
     moution = Motion('arrow.png')
     cl = 0
-    all_sprites.add(moution)
     app = QApplication(sys.argv)
     en = End()
     en.hide()
@@ -63,6 +61,11 @@ def main_cycle():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    moution.new_motion(all_sprites, player, player1)
+                    cl = 0
+                    continue
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                 cl = -1
                 un = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
@@ -82,11 +85,6 @@ def main_cycle():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mish_sprites = pygame.sprite.Group()
                 cl += 1
-                if event.pos[0] > 365 and event.pos[1] > 385:
-                    moution.new_motion(all_sprites, player, player1)
-                    cl = 0
-                    alpha.turn_count += 1
-                    continue
                 unit = board_global.get_cell_object(*board_global.get_cell(event.pos)).content.get(
                     'units', None)
                 if type(unit) != City and unit:
