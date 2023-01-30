@@ -201,11 +201,11 @@ class Heroes(pygame.sprite.Sprite):
         self.rect.x = self.x * self.board.cell_size + self.board.left
         self.rect.y = self.y * self.board.cell_size + self.board.top
 
-    def fight(self, opponent, x, y):
+        def fight(self, opponent, x, y):
         if self.color is not opponent.color:
             target_pixel_x, target_pixel_y = x, y
             target_cell = self.board.get_cell((target_pixel_x, target_pixel_y))
-            i = abs(self.x - x) + abs(self.y - y)
+            i = (((target_cell[0] - self.x) ** 2) ** 0.5 + ((target_cell[1] - self.y) ** 2) ** 0.5)
             if i <= self.range and self.power >= 0:
                 self.power -= 1
                 self.health -= opponent.damage
@@ -217,8 +217,8 @@ class Heroes(pygame.sprite.Sprite):
                     opponent.kill()
                 else:
                     if self.health <= 0:
-                        self.board.board[self.x][self.y].content['units'] = opponent
-                        opponent.board.board[opponent.x][opponent.y] = None
+                        self.board.board[self.x][self.y].content['units'] = \
+                            opponent.board.board[opponent.x][opponent.y].content['units']
                         self.kill()
                     if opponent.health <= 0:
                         if type(opponent) == City:
